@@ -1,0 +1,456 @@
+{
+  "updated_at": "2026-06-25T20:44:00.688067+00:00",
+  "predictions": [
+    {
+      "market_id": "665374",
+      "model_prob": 0.09,
+      "prior_prob": 0.13,
+      "confidence": 0.5,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "Resolution requires the US to commence a military OFFENSIVE to establish CONTROL over Iranian territory by Dec 31 2026 — a ground/territorial bar; the Feb air campaign and naval blockade do NOT qualify. A new 60-day US-Iran ceasefire MOU was signed June 17 with active nuclear talks, and Trump explicitly said he does not intend a ground invasion. The escalation ladder from today to a US ground offensive (ceasefire collapse -> renewed air war -> invasion decision -> mobilization -> ground operation) is long for a 6-month clock. I fade the crowd's 13.5% modestly toward ~0.09, but the conflict is live and the June 7-8 ceasefire already faltered once, so the fade is small and two-sided. Edge 0.045 < MIN_EDGE 0.08 -> PASS.",
+      "key_uncertainty": "Whether the 60-day ceasefire collapses and a limited territorial seizure (e.g. Kharg Island, which Trump mused about) is launched before Dec 31 — that would satisfy 'control over any portion'.",
+      "half_life": "21d",
+      "evidence": [
+        {
+          "query": "US Iran ceasefire June 2026 memorandum",
+          "source_url": "https://www.aljazeera.com/news/2026/6/17/read-the-us-account-of-unreleased-14-point-iran-ceasefire-memorandum",
+          "source_tier": "expert",
+          "key_finding": "US and Iran signed an MOU on June 17 establishing a 60-day ceasefire extension to negotiate a final deal",
+          "likelihood_ratio": 0.7,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:31.114066+00:00"
+        },
+        {
+          "query": "US ground invasion Iran intent 2026",
+          "source_url": "https://en.wikipedia.org/wiki/2026_Iran_war",
+          "source_tier": "expert",
+          "key_finding": "Trump said the US could take Iran with a small force but does not intend to invade; no US ground-invasion mobilization reported",
+          "likelihood_ratio": 0.8,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:31.114071+00:00"
+        },
+        {
+          "query": "Polymarket Iran invasion resolution criteria",
+          "source_url": "https://polymarket.com/event/will-the-us-invade-iran-before-2027",
+          "source_tier": "primary",
+          "key_finding": "Resolves YES only if the US commences an offensive to establish CONTROL over Iranian territory; airstrikes/blockade do not count",
+          "likelihood_ratio": 0.85,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:31.114074+00:00"
+        },
+        {
+          "query": "Iran ceasefire faltering June 2026",
+          "source_url": "https://www.cnn.com/2026/06/07/world/live-news/iran-war-trump-israel-lebanon",
+          "source_tier": "expert",
+          "key_finding": "The earlier ceasefire faltered June 7-8 with renewed Israel-Iran strikes before the June 12/17 deal — the truce is fragile",
+          "likelihood_ratio": 1.15,
+          "direction": "YES",
+          "fetched_at": "2026-06-25T19:03:31.114078+00:00"
+        },
+        {
+          "query": "US-Iran Switzerland talks roadmap June 22 2026",
+          "source_url": "https://www.cnbc.com/2026/06/22/us-iran-roadmap-final-deal-switzerland-talks-lebanon-deconfliction.html",
+          "source_tier": "expert",
+          "key_finding": "June 22 Switzerland talks: US-Iran agreed a roadmap to a final deal within 60 days, IAEA inspectors invited back, and a mechanism to reopen Hormuz — material de-escalation that further lowers the odds of a US ground offensive to seize Iranian territory",
+          "likelihood_ratio": 0.85,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T20:20:03.879772+00:00"
+        },
+        {
+          "query": "Trump threat hit Iran hard Hezbollah; IRGC Hormuz reclosure June 2026",
+          "source_url": "https://www.cbsnews.com/live-updates/iran-us-war-talks-suspended-trump-mou-israel-lebanon-hezbollah-fighting/",
+          "source_tier": "expert",
+          "key_finding": "Trump threatened to 'hit Iran very hard again' over Hezbollah and the IRGC re-closed Hormuz — a re-escalation tail, but it points to renewed STRIKES, not a ground offensive to establish territorial control (the resolving condition)",
+          "likelihood_ratio": 1.1,
+          "direction": "YES",
+          "fetched_at": "2026-06-25T20:20:03.879795+00:00"
+        }
+      ],
+      "question": "Will the U.S. invade Iran before 2027?",
+      "market_prob": 0.135,
+      "end_date": "2026-12-31T00:00:00Z",
+      "url": "https://polymarket.com/event/will-the-us-invade-iran-before-2027",
+      "liquidity": 316571.0276,
+      "category": "Politics",
+      "pred_id": "p00001",
+      "created_at": "2026-06-25T19:03:31.114046+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.045
+    },
+    {
+      "market_id": "1971905",
+      "model_prob": 0.02,
+      "prior_prob": 0.05,
+      "confidence": 0.8,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "Near-mechanical resolution: YES needs the IMF PortWatch 7-day moving average of transit calls to hit >=60 on any date through June 30. As of June 21 PortWatch shows ~5 transits/day vs a 93 baseline. With only ~4 days left, even an instantaneous jump to 100/day cannot lift the 7-day MA to 60 in time: (3*5 + 4*100)/7 = ~59.3 < 60. So YES is arithmetically near-impossible (~0.02). The crowd's 5.1% already reflects this correctly. There is no shortable edge below the floor (0.051 - 0.02 = 0.031 < MIN_EDGE 0.08) -> PASS. High confidence in the model_prob because the resolution is data-driven and the math is decisive.",
+      "key_uncertainty": "PortWatch data-quality caveats (GPS jamming, AIS spoofing, vessels going dark) could distort the published transit count, but not enough to reach 60 in 4 days.",
+      "half_life": "4d",
+      "evidence": [
+        {
+          "query": "Strait of Hormuz transit calls June 2026 PortWatch",
+          "source_url": "https://portwatch.imf.org/pages/cb5856222a5b4105adc6ee7e880a1730",
+          "source_tier": "primary",
+          "key_finding": "~5 transits/day as of June 21 vs 93 pre-crisis baseline; 7-day MA far below the 60 threshold",
+          "likelihood_ratio": 0.4,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:31.642587+00:00"
+        },
+        {
+          "query": "resolution math 7-day MA >= 60 by June 30",
+          "source_url": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june",
+          "source_tier": "primary",
+          "key_finding": "Even an instant jump to 100/day for the 4 remaining days yields a 7-day MA of only ~59 (<60) — YES near-mechanically impossible",
+          "likelihood_ratio": 0.5,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:31.642593+00:00"
+        },
+        {
+          "query": "Strait of Hormuz IRGC closed again June 2026",
+          "source_url": "https://www.cbsnews.com/live-updates/iran-us-deal-trump-war-negotiations/",
+          "source_tier": "expert",
+          "key_finding": "IRGC re-closed the Strait of Hormuz (~June 20) over Israeli strikes in Lebanon, to remain closed pending a Lebanon ceasefire + sanctions relief — a 7-day MA of transit calls >=60 by June 30 is now even more mechanically impossible",
+          "likelihood_ratio": 0.5,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T20:20:03.882111+00:00"
+        }
+      ],
+      "question": "Strait of Hormuz traffic returns to normal by end of June?",
+      "market_prob": 0.0505,
+      "end_date": "2026-06-30T00:00:00Z",
+      "url": "https://polymarket.com/event/strait-of-hormuz-traffic-returns-to-normal-by-end-of-june",
+      "liquidity": 228905.622,
+      "category": "Other",
+      "pred_id": "p00002",
+      "created_at": "2026-06-25T19:03:31.642571+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.0305
+    },
+    {
+      "market_id": "567621",
+      "model_prob": 0.025,
+      "prior_prob": 0.03,
+      "confidence": 0.6,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "Low-base-rate tail. Resolution requires China to commence a military offensive to establish control over ROC (Taiwan) territory by Dec 31 2026. The US 2026 Annual Threat Assessment (ODNI, released March 18) judges the PRC likely will not invade even by 2027, and ISW reports no mobilization consistent with a 2026 invasion. A compounded 6-month hazard sits around 0.02-0.03. The crowd at 5.7% carries a modest fear premium, but it is already near the floor: a NO cannot clear MIN_EDGE 0.08 (0.057 - 0.025 = 0.032) -> PASS.",
+      "key_uncertainty": "A sudden cross-strait escalation (e.g. around a political trigger) is the tail; absent physical mobilization evidence, the base rate dominates.",
+      "half_life": "30d",
+      "evidence": [
+        {
+          "query": "ODNI 2026 threat assessment China Taiwan invasion",
+          "source_url": "https://news.usni.org/2026/03/19/china-not-committed-to-2027-taiwan-invasion-u-s-intel-report-says",
+          "source_tier": "expert",
+          "key_finding": "US 2026 Annual Threat Assessment: China is not committed to invading Taiwan in 2027",
+          "likelihood_ratio": 0.7,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:32.222280+00:00"
+        },
+        {
+          "query": "ISW China-Taiwan update March 2026 mobilization",
+          "source_url": "https://www.understandingwar.org/research/china-taiwan/china-taiwan-update-march-27-2026/",
+          "source_tier": "expert",
+          "key_finding": "ISW relays the ODNI assessment that the PRC likely will not invade Taiwan in 2027; no 2026 invasion mobilization",
+          "likelihood_ratio": 0.85,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:32.222285+00:00"
+        },
+        {
+          "query": "Polymarket Taiwan invasion resolution criteria",
+          "source_url": "https://polymarket.com/event/will-china-invade-taiwan-before-2027",
+          "source_tier": "primary",
+          "key_finding": "Requires China to commence an offensive to establish control over inhabited ROC territory by Dec 31 2026",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:32.222288+00:00"
+        }
+      ],
+      "question": "Will China invade Taiwan by end of 2026?",
+      "market_prob": 0.0565,
+      "end_date": "2026-12-31T00:00:00Z",
+      "url": "https://polymarket.com/event/will-china-invade-taiwan-before-2027",
+      "liquidity": 606042.56114,
+      "category": "Politics",
+      "pred_id": "p00003",
+      "created_at": "2026-06-25T19:03:32.222263+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.0315
+    },
+    {
+      "market_id": "997488",
+      "model_prob": 0.02,
+      "prior_prob": 0.03,
+      "confidence": 0.6,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "Very high resolution bar: YES requires the US to OFFICIALLY ANNOUNCE that Greenland will come under US sovereignty (transfer of the majority of the territory) by Dec 31 2026. At Davos (Jan 21) Trump reversed course, pledging no force and no tariffs; the framework discussed with NATO SG Rutte explicitly respects Danish sovereignty and does NOT transfer overall sovereignty. Denmark and Greenland call sovereignty indisputable and have deployed arctic troops. A formal sovereignty transfer in ~6 months is ~0.02. The crowd's 5.9% is mildly rich versus true value, but absolute level is too low for a NO to clear MIN_EDGE 0.08 (0.059 - 0.02 = 0.039) -> PASS.",
+      "key_uncertainty": "A surprise 'security/association' deal getting framed (and resolving) as a sovereignty transfer — but the resolution demands a sovereignty announcement, which the current framework explicitly excludes.",
+      "half_life": "30d",
+      "evidence": [
+        {
+          "query": "Trump Greenland Davos pledge no force tariffs sovereignty",
+          "source_url": "https://www.axios.com/2026/01/21/greenland-deal-trump-denmark-sovereignty",
+          "source_tier": "expert",
+          "key_finding": "Jan 21 framework endorsed by Trump respects Denmark's sovereignty and does not include transfer of Greenland sovereignty to the US",
+          "likelihood_ratio": 0.5,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:32.828702+00:00"
+        },
+        {
+          "query": "Denmark Greenland sovereignty position 2026",
+          "source_url": "https://commonslibrary.parliament.uk/research-briefings/cbp-10472/",
+          "source_tier": "expert",
+          "key_finding": "Denmark/Greenland affirm sovereignty is indisputable and non-negotiable; Danish forces deployed to Greenland",
+          "likelihood_ratio": 0.7,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:32.828707+00:00"
+        },
+        {
+          "query": "Polymarket Greenland sovereignty resolution criteria",
+          "source_url": "https://polymarket.com/event/will-trump-acquire-greenland-before-2027",
+          "source_tier": "primary",
+          "key_finding": "Requires the US to officially announce Greenland under US sovereignty (majority-territory transfer) by Dec 31 2026 — a very high bar",
+          "likelihood_ratio": 0.7,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:32.828710+00:00"
+        }
+      ],
+      "question": "Will Trump acquire Greenland before 2027?",
+      "market_prob": 0.0585,
+      "end_date": "2026-12-31T00:00:00Z",
+      "url": "https://polymarket.com/event/will-trump-acquire-greenland-before-2027",
+      "liquidity": 157001.55383,
+      "category": "Politics",
+      "pred_id": "p00004",
+      "created_at": "2026-06-25T19:03:32.828686+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.0385
+    },
+    {
+      "market_id": "703257",
+      "model_prob": 0.04,
+      "prior_prob": 0.05,
+      "confidence": 0.6,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "Resolution requires the President, a Cabinet member, the Joint Chiefs, or any US federal agency to DEFINITIVELY state that extraterrestrial life or technology exists by Dec 31 2026. AARO has consistently found no evidence any UAP involves ET, and the May 8 2026 Dept of War file release explicitly did NOT confirm ET. The institutional posture is the opposite of a 'definitive' confirmation. I keep model_prob above the pure ~0.02 base rate (to ~0.04) because there is an active 2026 Trump-administration disclosure campaign (Hegseth doubling down) and the resolution is broad ('any federal agency'), so the tail is non-trivial. Still, 0.095 - 0.04 = 0.055 < MIN_EDGE 0.08 -> PASS. Closest of the board, but the disclosure tail blocks a confident >=8pt fade.",
+      "key_uncertainty": "Whether the ongoing UAP-disclosure push produces a statement loose enough to be read as a 'definitive' confirmation of ET by some agency.",
+      "half_life": "30d",
+      "evidence": [
+        {
+          "query": "AARO extraterrestrial no evidence 2026 disclosure",
+          "source_url": "https://defensescoop.com/2026/02/25/hegseth-ufo-disclosure-trump-aaro-uap-caseload/",
+          "source_tier": "expert",
+          "key_finding": "AARO maintains it has found no evidence any UAP report involves extraterrestrial activity/technology; caseload >2000 but no ET confirmation",
+          "likelihood_ratio": 0.7,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:33.281124+00:00"
+        },
+        {
+          "query": "Pentagon UAP file release confirm aliens May 2026",
+          "source_url": "https://abcnews.com/Politics/pentagon-begins-release-decades-unresolved-ufo-files/story?id=132780534",
+          "source_tier": "expert",
+          "key_finding": "The May 8 2026 UAP file release did not confirm the existence of extraterrestrial life",
+          "likelihood_ratio": 0.8,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:33.281129+00:00"
+        },
+        {
+          "query": "Polymarket aliens resolution definitive statement",
+          "source_url": "https://polymarket.com/event/will-the-us-confirm-that-aliens-exist-before-2027-789-924-249",
+          "source_tier": "primary",
+          "key_finding": "Requires an official to DEFINITIVELY state ET life/technology exists; file releases and hearings short of that do not qualify",
+          "likelihood_ratio": 0.8,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T19:03:33.281132+00:00"
+        },
+        {
+          "query": "Trump UAP disclosure campaign 2026",
+          "source_url": "https://defensescoop.com/2026/02/20/trump-ufo-uap-government-files-disclosure/",
+          "source_tier": "expert",
+          "key_finding": "Active 2026 Trump-administration UAP disclosure push raises the tail risk of a dramatic official statement",
+          "likelihood_ratio": 1.3,
+          "direction": "YES",
+          "fetched_at": "2026-06-25T19:03:33.281134+00:00"
+        }
+      ],
+      "question": "Will the US confirm that aliens exist before 2027?",
+      "market_prob": 0.095,
+      "end_date": "2026-12-31T00:00:00Z",
+      "url": "https://polymarket.com/event/will-the-us-confirm-that-aliens-exist-before-2027-789-924-249",
+      "liquidity": 579993.5651,
+      "category": "Other",
+      "pred_id": "p00005",
+      "created_at": "2026-06-25T19:03:33.281110+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.055
+    },
+    {
+      "market_id": "2633430",
+      "model_prob": 0.15,
+      "prior_prob": 0.2,
+      "confidence": 0.6,
+      "decision": "POSITION",
+      "direction": "NO",
+      "conviction": 2,
+      "rationale": "§2.4 procedural-timing edge. The crowd (0.255) prices the deal HAPPENING amid real momentum; we price whether a QUALIFYING FINAL written instrument can be concluded by the specific Aug 31 deadline. The 60-day roadmap target (~Aug 13 from the June 14 framework) is aspirational and explicitly EXTENDABLE — slippage is built in. The hardest issues (enrichment level, HEU stockpile) resolve last, working groups were only just formed, and Wendy Sherman (2015 lead negotiator) warns 60 days is far too short (2015 targeted 6 months, took 18). An interim/framework does not satisfy the 'final deal' bar. So ~0.15 vs 0.255 -> edge -0.105 NO.",
+      "key_uncertainty": "Whether the parties sign a staged/partial instrument that still qualifies as 'final', vs. simply extending the negotiation window past Aug 31.",
+      "half_life": "14d",
+      "evidence": [
+        {
+          "query": "US-Iran roadmap final deal 60 days June 2026",
+          "source_url": "https://www.cnbc.com/2026/06/22/us-iran-roadmap-final-deal-switzerland-talks-lebanon-deconfliction.html",
+          "source_tier": "expert",
+          "key_finding": "Roadmap targets a final deal within 60 days of the June 14 framework (~Aug 13); the 60-day period is explicitly EXTENDABLE",
+          "likelihood_ratio": 0.85,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T20:43:59.740802+00:00"
+        },
+        {
+          "query": "Wendy Sherman 60 days insufficient Iran nuclear deal",
+          "source_url": "https://thehill.com/homenews/administration/5923392-iran-deal-nuclear-talks-timeline/amp/",
+          "source_tier": "expert",
+          "key_finding": "Sherman (2015 lead): 60 days is far too short; 2015 targeted 6 months but took 18 — enrichment & HEU-stockpile issues resolve last",
+          "likelihood_ratio": 0.6,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T20:43:59.740808+00:00"
+        },
+        {
+          "query": "Polymarket Iran final nuclear deal resolution criteria",
+          "source_url": "https://polymarket.com/event/us-iran-final-nuclear-deal-by-august-31-2026",
+          "source_tier": "primary",
+          "key_finding": "Resolves YES only on a QUALIFYING WRITTEN final diplomatic instrument by Aug 31 23:59 ET; an interim/framework does not count",
+          "likelihood_ratio": 0.8,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T20:43:59.740812+00:00"
+        },
+        {
+          "query": "US-Iran momentum IAEA inspectors working groups June 2026",
+          "source_url": "https://time.com/article/2026/06/19/iran-united-states-agreement-nuclear-program-war-israel-lebanon/",
+          "source_tier": "expert",
+          "key_finding": "Genuine momentum: June 14 framework signed, IAEA inspectors invited back, oversight/sanctions/nuclear working groups formed, both sides motivated",
+          "likelihood_ratio": 1.5,
+          "direction": "YES",
+          "fetched_at": "2026-06-25T20:43:59.740814+00:00"
+        }
+      ],
+      "question": "US-Iran Final Nuclear Deal by August 31, 2026?",
+      "market_prob": 0.255,
+      "end_date": "2026-08-31T23:59:00Z",
+      "url": "https://polymarket.com/event/us-iran-final-nuclear-deal-by-august-31-2026-20260621201255154",
+      "liquidity": 531634.8352,
+      "category": "Politics",
+      "pred_id": "p00006",
+      "created_at": "2026-06-25T20:43:59.740783+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.105
+    },
+    {
+      "market_id": "1654958",
+      "model_prob": 0.8,
+      "prior_prob": 0.8,
+      "confidence": 0.45,
+      "decision": "PASS",
+      "direction": "YES",
+      "conviction": 1,
+      "rationale": "§2.5 — the curve is the prior; do not manufacture edge from stale data. An apparent edge (Polymarket 0.795 vs CME FedWatch ~88.8% no-change) did NOT survive verification: that FedWatch read was June 13, BEFORE the June 17 hold, and ambiguous as to which meeting. Fresh reads conflict — Polymarket itself shows ~76% no-change with ~24% HIKE risk priced (a live oil/inflation catalyst from the Mideast disruption), and an investing.com curve read came back internally inconsistent (showed a cut from a range the Fed already left). No clean current fed-funds-futures number confirms divergence, so model ~= curve ~= market -> edge ~0 -> PASS. Confidence lowered for the data gap.",
+      "key_uncertainty": "The precise current fed-funds-futures no-change probability for the July 29 meeting (a clean CME FedWatch read), and the size of the oil-driven hike risk the market is pricing.",
+      "half_life": "7d",
+      "evidence": [
+        {
+          "query": "CME FedWatch July 2026 no change probability",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "CME FedWatch ~88.8% no-change as of June 13 — but pre-June-17-hold and ambiguous on the target meeting; too stale to act on",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-25T20:44:00.259286+00:00"
+        },
+        {
+          "query": "FOMC July 29 2026 odds post June hold",
+          "source_url": "https://www.investing.com/central-banks/fed-rate-monitor",
+          "source_tier": "market",
+          "key_finding": "Fresh curve reads conflict and one was internally inconsistent (garbled); Polymarket's own dashboard ~76% no-change with ~24% hike risk — no confirmed sharp-curve divergence from the price",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T20:44:00.259291+00:00"
+        },
+        {
+          "query": "June 17 2026 FOMC decision hold wait and see",
+          "source_url": "https://commonslibrary.parliament.uk/research-briefings/cbp-10637/",
+          "source_tier": "expert",
+          "key_finding": "June 17 FOMC held 12-0 at 3.50-3.75%, wait-and-see — supports a no-change baseline, but Mideast oil/inflation is a genuine hike catalyst that justifies the priced change-risk",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-25T20:44:00.259294+00:00"
+        }
+      ],
+      "question": "Will there be no change in Fed interest rates after the July 2026 meeting?",
+      "market_prob": 0.795,
+      "end_date": "2026-07-29T00:00:00Z",
+      "url": "https://polymarket.com/event/will-there-be-no-change-in-fed-interest-rates-after-the-july-2026-meeting",
+      "liquidity": 554147.4195,
+      "category": "Economy",
+      "pred_id": "p00007",
+      "created_at": "2026-06-25T20:44:00.259270+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.005
+    },
+    {
+      "market_id": "562802",
+      "model_prob": 0.8,
+      "prior_prob": 0.8,
+      "confidence": 0.5,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "§2.4 election. The 0.805 Dem-House price already aligns with the strong midterm base rate — the president's party (Trump's GOP) almost always loses House seats, so the opposition is structurally favored to control the House after Nov 3 2026. I have no defensible deviation without a de-housed generic-ballot average + a seat-translation model, which I did NOT pull this pass (data gap). model ~= market -> edge ~0 -> PASS. Next step: polling_search the generic ballot and de-house >=2 aggregators before any position.",
+      "key_uncertainty": "The current de-housed generic-ballot margin and its seat-model translation (incl. redistricting); that is what would move this off the base rate.",
+      "half_life": "21d",
+      "evidence": [
+        {
+          "query": "Polymarket 2026 House control resolution criteria",
+          "source_url": "https://polymarket.com/event/will-the-democratic-party-control-the-house-after-the-2026-midterm-elections",
+          "source_tier": "primary",
+          "key_finding": "Resolves to the party with >half of voting House members after the Nov 3 2026 election — a clean 'control' (plurality of seats) resolution",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-25T20:44:00.688058+00:00"
+        }
+      ],
+      "question": "Will the Democratic Party control the House after the 2026 Midterm elections?",
+      "market_prob": 0.805,
+      "end_date": "2026-11-03T00:00:00Z",
+      "url": "https://polymarket.com/event/will-the-democratic-party-control-the-house-after-the-2026-midterm-elections",
+      "liquidity": 373797.402,
+      "category": "Politics",
+      "pred_id": "p00008",
+      "created_at": "2026-06-25T20:44:00.688041+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.005
+    }
+  ]
+}

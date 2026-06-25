@@ -1,0 +1,21 @@
+{
+  "updated_at": null,
+  "_schema": "Structural world-model beliefs the Specialist may lean on. confidence in [0,1]. Retire beliefs that prove wrong rather than letting them rot.",
+  "beliefs": [
+    {
+      "topic": "markets",
+      "statement": "Polymarket prices are an efficient prior; deviating from them requires a concrete, stateable mechanism, not just a narrative.",
+      "confidence": 0.9
+    },
+    {
+      "topic": "calibration",
+      "statement": "Crowds over-react to vivid recent news; mean-reversion toward base rates is a recurring (but not universal) edge.",
+      "confidence": 0.6
+    },
+    {
+      "topic": "resolution",
+      "statement": "Most 'surprise' edges in prediction markets come from misreading the resolution criteria, not from superior world-knowledge.",
+      "confidence": 0.7
+    }
+  ]
+}

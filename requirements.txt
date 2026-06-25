@@ -1,0 +1,9 @@
+# ApexMind — Python dependencies
+# Keep this lean: the Python layer only fetches data and manages files.
+# All LLM reasoning is done by Claude Code (no Anthropic API key needed).
+
+requests>=2.31.0          # Polymarket Gamma / CLOB HTTP calls
+python-dateutil>=2.8.2    # robust date parsing for market resolution
+tabulate>=0.9.0           # pretty tables for the `status` CLI command
+python-dotenv>=1.0.0      # load Telegram secrets from a local .env file
+beautifulsoup4>=4.12.0    # robust HTML parsing for tools/research.py (graceful fallback)
