@@ -70,6 +70,25 @@ mechanism the price is missing. Tunables live in `config.py`
    `memory_store.add_evidence(pred_id, [...])`. **A POSITION with an empty ledger is a
    hunch — downgrade it to PASS.** This is what lets Reflection diagnose *why* a call
    won or lost (bad source vs. bad weighting vs. variance), not just *that* it did.
+
+   **Re-analysing a market you already recorded? NEVER `record` it twice.** `record` is
+   append-only (no dedup by `market_id`); a second `record` appends a duplicate row that
+   **double-counts conviction in `portfolio` and double-scores calibration**. To revise
+   an existing call: add a later source with `memory_store.add_evidence(pred_id, [...])`,
+   or change `model_prob`/`confidence`/`decision` by **editing that row in
+   `memory/predictions.json` in place** (match on `pred_id`), then re-run `python
+   main_agent.py status` to confirm the count is unchanged. Recording now **warns** and
+   tags `supersedes` if an open row already shares the `market_id`; if a duplicate still
+   slipped in, set its `status` to `"void"` — **do NOT delete the row** (`pred_id` =
+   `len(preds)+1`, so deleting causes id collisions on the next record). Always `record`
+   via the **CLI** (`--file pred.json`), never `record_prediction()` directly.
+
+   **Non-binary / 50-50 resolution** (e.g. "X before GTA VI", void-able, multi-outcome):
+   Brier is only meaningful on a clean YES/NO. Default to **PASS** with `model_prob ≈
+   0.50` and low confidence; note the void/tie odds in `key_uncertainty`. If you must
+   record a number, set `model_prob` to the YES-*payout* EV (`P(YES) + 0.5·P(50-50
+   branch)`) and flag in `key_uncertainty` that resolution is non-binary. (`resolve`
+   accepts only int 0/1, so score any genuine partial by hand and note it.)
 6. **Memo + notify.** Write the Supervisor Decision Memo to
    `data/decision_memo_latest.md`, then push it to the user's phone:
    - Write a `notify.json` with `executive_summary`, `macro_frame`,

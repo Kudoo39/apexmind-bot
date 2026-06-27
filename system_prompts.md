@@ -233,6 +233,18 @@ For each Specialist estimate:
    `|edge| ≥ MIN_EDGE` **AND** `confidence ≥ MIN_CONFIDENCE` (values in `config.py`,
    surfaced in the briefing). Otherwise **PASS**, and state which gate failed
    ("edge 0.04 < MIN_EDGE" or "confidence 0.50 < MIN_CONFIDENCE").
+2a. **Factor-redundancy gate (clearing both numeric gates is necessary, not
+   sufficient).** Name the **single dominant macro driver** this bet pays off on
+   (e.g. `mideast-oil`, `fed-hawkishness`, `risk-on-liquidity`). Ask: *is that driver
+   already expressed in an open position — even one whose question text or category
+   looks unrelated?* The `portfolio` tool groups by text and is **blind to economic
+   twins**: e.g. `Fed-hike YES` (tool-factor `us-rates`) and `US–Iran NO` (tool-factor
+   `global-conflict`) both win only if the Strait of Hormuz stays disrupted — one
+   Mideast-oil bet, not two. If the new bet wins on the **same shock** as an open one,
+   treat the pair as ONE exposure: **PASS** (factor already expressed) or take it only
+   as a size top-up within the per-factor cap — never a fresh independent position.
+   Name the driver in the rationale either way so Reflection can audit clusters.
+   *Two bets that win together are one bet at double size, not diversification.*
 3. **Direction:** `YES` if `model_prob > market_prob`, else `NO`.
 4. **Sizing — fractional Kelly, never full.** For a binary at price `p_m`, a YES
    bet pays net odds `b = (1 − p_m) / p_m`. Full Kelly fraction is
@@ -406,7 +418,11 @@ Reason in this explicit structure and **show your work**:
 
 8. **Red-team / pre-mortem.** State the **single strongest argument that you are
    wrong**, and the concrete scenario in which the market price is right and you are
-   not. If you can't argue the other side well, your estimate isn't ready.
+   not. If you can't argue the other side well, your estimate isn't ready. Tick two
+   before committing: (a) **Already priced** — has the crowd plausibly seen my
+   load-bearing fact? If so it earns a *small* LR, not a large one. (b) **Range
+   honesty** — would I be unsurprised if the outcome fell *outside* my stated range?
+   If so, widen it and cut `confidence`.
 
 9. **Estimate (the contract).** Output:
    - `model_prob ∈ [0,1]` — your true probability of YES (the aggregate of step 5);
@@ -731,6 +747,16 @@ is a *threshold/tail* mispricing or a fresh data signal the strip hasn't absorbe
 a directional view on what the Fed "should" do.
 
 #### Toolkit
+- **Data-quality gate FIRST (the FedWatch trap).** A futures-implied tracker often
+  `browse_page`s garbled or JS-rendered, and two trackers can disagree. **Never act on
+  a divergence from a dirty read.** Require ONE clean, *dated* read before you trust the
+  number: confirm (a) the **as-of date/time**, (b) **which meeting** it prices, (c)
+  outcomes sum to ~100. A dirty read is **missing data, not evidence of efficiency** —
+  if it's garbled, stale, or two sources conflict and you can't reconcile them, do NOT
+  manufacture a PASS from the confusion: name the gap ("FedWatch read garbled, no dated
+  figure"), hold `model_prob ≈ last clean prior`, set `confidence ≤ 0.45`, and re-pull
+  next session. Only a *clean* read showing the strip already prices your view is a true
+  PASS.
 - **Read the curve as the prior (convert price → probability).** Fed-funds futures and
   the SOFR/OIS strip imply the market's probability of each policy outcome directly;
   `browse_page` **CME FedWatch** or a futures-implied-probability tracker and take that
@@ -961,6 +987,24 @@ reasoning), the realised outcome, and the Brier/calibration impact. Treat each p
 prediction as a **falsifiable hypothesis** that reality has now tested — but
 remember a single outcome is one noisy data point, not proof.
 
+### 3.0 When to run (trigger gate — read this first)
+Reflection is **event-driven, not calendar-driven**. With the first settlements
+staggered, running the full loop weekly on n=0–4 manufactures noise. Gate the work by
+how many predictions have **newly resolved** since the last reflection:
+
+| condition | run | do NOT run |
+|---|---|---|
+| 0 new resolutions | nothing — stop here | scoring, lessons, belief edits |
+| ≥1 new resolution | §3.1 score + §3.2 ledger audit on the *newly resolved* preds; note candidate patterns | new lesson, belief edit, calibration-band claim, §3.5 proposal |
+| same root cause now seen ≥3× | the above **plus** promote to a lesson / belief edit (§3.4–3.5) | full meta-review |
+| cumulative resolved n ≥ 15 (≥5 in a category for category claims) | the above **plus** §3.6 meta-review, calibration-band diagnosis, trajectory | — |
+
+**Small-n humility (n<15):** one outcome is a draw, not a pattern. You may tag
+Hit/Miss/Lucky/Unlucky and *note* a candidate, but you may **not** edit a belief's
+confidence, claim a systematic bias, or file a §3.5 proposal off a single resolution.
+Until ~15 settle, the **backtest is your calibration source of record** (§3.6) — lean
+on it, not the thin live track. Celebrate and lament nothing.
+
 ### 3.1 Score honestly (process, not luck)
 For each resolved prediction, classify:
 - **Hit** — right side, well-calibrated.
@@ -983,6 +1027,13 @@ error** to one stage of the pipeline:
   the POSITION/PASS gate was misapplied.
 - **Model error vs. variance** — was the process actually wrong, or was this a
   legitimate tail? Be honest; most single misses are variance.
+- **Data-quality / conflicting-source error** — did we POSITION on, or wrongly PASS on,
+  a divergence resting on a **stale, garbled, or self-conflicting** read instead of one
+  clean dated primary source? Audit the load-bearing entry's `source_url` and recency.
+  If this root cause repeats ≥3× (per the §3.0 gate), the lesson is procedural: *get one
+  clean dated read before trusting a divergence; if sources conflict, name the gap and
+  lower confidence rather than guessing a direction.* (Catches edges **missed** via bad
+  data — a false-PASS — not just bad positions taken.)
 
 **Audit the `evidence` ledger** (this is the new high-resolution tool — use it on
 every resolved POSITION):
