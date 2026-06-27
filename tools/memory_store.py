@@ -17,6 +17,8 @@ Memory files
 from __future__ import annotations
 
 import json
+import math
+import warnings
 from datetime import datetime, timezone
 from typing import Any
 
@@ -110,6 +112,27 @@ def _normalise_evidence(evidence: Any) -> list[dict[str, Any]]:
     return out
 
 
+def _backfill_from_cache(entry: dict[str, Any]) -> None:
+    """Fill market fields from the cached shortlist when only an id was given, so
+    EVERY write path (CLI, skill, direct script) yields a complete row. The portfolio
+    factor classifier keys off the question text — a blank question silently mis-buckets
+    the position (e.g. a Fed market filed under 'other' instead of 'us-rates')."""
+    mid = entry.get("market_id")
+    if not mid:
+        return
+    cache = _load(config.MARKETS_CACHE, {"shortlist": []})
+    for m in cache.get("shortlist", []):
+        if m.get("id") == str(mid):
+            entry.setdefault("question", m.get("question"))
+            if entry.get("market_prob") is None:
+                entry["market_prob"] = m.get("market_prob")
+            entry.setdefault("end_date", m.get("end_date"))
+            entry.setdefault("url", m.get("url"))
+            entry.setdefault("liquidity", m.get("liquidity"))
+            entry.setdefault("category", m.get("category"))
+            break
+
+
 def record_prediction(entry: dict[str, Any]) -> dict[str, Any]:
     """Append a new prediction. Returns the stored entry (with id + timestamps).
 
@@ -122,6 +145,26 @@ def record_prediction(entry: dict[str, Any]) -> dict[str, Any]:
     """
     preds = load_predictions()
     entry = dict(entry)
+    _backfill_from_cache(entry)
+    # Dedup guard: the append-only store has no dedup by market_id. Re-recording the
+    # same OPEN market is almost always a re-analysis, not a second independent bet; a
+    # fresh row double-counts conviction in `portfolio` and double-scores calibration.
+    # WARN and tag `supersedes` — never raise (a library raise would break skill/script
+    # callers). Pass allow_duplicate=True for a genuinely distinct second position.
+    mid = entry.get("market_id")
+    allow_dup = entry.pop("allow_duplicate", False)
+    if mid is not None and not allow_dup:
+        dupes = [p for p in preds
+                 if str(p.get("market_id")) == str(mid) and p.get("status") == "open"]
+        if dupes:
+            entry["supersedes"] = [p["pred_id"] for p in dupes]
+            warnings.warn(
+                f"market_id {mid} already has OPEN prediction(s) {entry['supersedes']}; "
+                f"appending a NEW row double-counts it in portfolio/calibration. Prefer an "
+                f"in-place edit of memory/predictions.json or "
+                f"add_evidence('{dupes[-1]['pred_id']}', [...]). "
+                f"Pass allow_duplicate=True only for a genuinely separate position.",
+                stacklevel=2)
     entry.setdefault("pred_id", f"p{len(preds) + 1:05d}")
     entry.setdefault("created_at", _now())
     entry.setdefault("status", "open")        # open | resolved
@@ -167,6 +210,36 @@ def suggest_confidence_ceiling(liquidity: float | None,
         elif frac_low > 0:
             ceiling = min(ceiling, 0.78)
     return round(ceiling, 2)
+
+
+def reconcile_ledger(entry: dict[str, Any],
+                     tol_logodds: float = 0.50) -> dict[str, Any] | None:
+    """Check the ledger identity  logit(model) ≈ logit(prior) + Σ ln(LR).
+
+    Pure arithmetic advisory — it NEVER edits the entry or blocks recording (mirrors
+    suggest_confidence_ceiling). Returns None when there isn't enough to check (no
+    prior, no model, degenerate 0/1, or no usable LRs). `ok` is True when
+    |recorded_logit − implied_logit| ≤ tol_logodds (~0.50 ≈ a 1.6x LR of unexplained
+    drift — generous, so honest rounding or a small stated shade never trips it).
+    """
+    prior, model = entry.get("prior_prob"), entry.get("model_prob")
+    if prior in (None, 0, 1) or model in (None, 0, 1):
+        return None
+    lrs = [e.get("likelihood_ratio") for e in entry.get("evidence", [])
+           if isinstance(e.get("likelihood_ratio"), (int, float))
+           and not isinstance(e.get("likelihood_ratio"), bool)
+           and e.get("likelihood_ratio") > 0]
+    if not lrs:
+        return None
+    sum_ln = sum(math.log(lr) for lr in lrs)
+    implied_logit = math.log(prior / (1 - prior)) + sum_ln
+    recorded_logit = math.log(model / (1 - model))
+    gap = recorded_logit - implied_logit
+    return {"ok": abs(gap) <= tol_logodds,
+            "prior_prob": prior, "model_prob": model,
+            "sum_ln_lr": round(sum_ln, 3),
+            "implied_model_prob": round(1 / (1 + math.exp(-implied_logit)), 3),
+            "gap": round(gap, 3)}
 
 
 def add_evidence(pred_id: str, entries: list[dict[str, Any]]) -> dict[str, Any] | None:

@@ -41,8 +41,13 @@ def _factor(market: dict[str, Any]) -> str:
 
 def exposure_report() -> dict[str, Any]:
     """Aggregate open POSITIONs by category and shared factor, with risk flags."""
+    # Skip rows another row supersedes (a re-analysis the dedup guard tagged) so a
+    # stray duplicate can never double-count conviction even if one slipped through.
+    _superseded = {pid for p in memory_store.open_predictions()
+                   for pid in (p.get("supersedes") or [])}
     positions = [p for p in memory_store.open_predictions()
-                 if p.get("decision") == "POSITION"]
+                 if p.get("decision") == "POSITION"
+                 and p.get("pred_id") not in _superseded]
 
     by_cat: dict[str, dict[str, Any]] = {}
     by_factor: dict[str, dict[str, Any]] = {}

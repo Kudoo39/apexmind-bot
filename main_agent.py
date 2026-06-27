@@ -99,21 +99,8 @@ def cmd_record(args) -> None:
     """
     entry = _load_json_input(args.file, args.json)
 
-    # Backfill market fields from the cached shortlist if only an id was given.
-    if entry.get("market_id"):
-        cache = json.loads(config.MARKETS_CACHE.read_text(encoding="utf-8")) \
-            if config.MARKETS_CACHE.exists() else {"shortlist": []}
-        for m in cache.get("shortlist", []):
-            if m["id"] == str(entry["market_id"]):
-                entry.setdefault("question", m["question"])
-                if entry.get("market_prob") is None:
-                    entry["market_prob"] = m["market_prob"]
-                entry.setdefault("end_date", m["end_date"])
-                entry.setdefault("url", m["url"])
-                entry.setdefault("liquidity", m.get("liquidity"))
-                entry.setdefault("category", m.get("category"))
-                break
-
+    # record_prediction() backfills market fields from the cached shortlist on EVERY
+    # call path (CLI/skill/script) and warns on a duplicate open market_id.
     stored = memory_store.record_prediction(entry)
     logger.log_event("prediction", stored)
     print(f"Recorded {stored['pred_id']}: {stored.get('decision', '?')} "
@@ -131,6 +118,15 @@ def cmd_record(args) -> None:
     if stored.get("decision") == "POSITION" and not stored.get("evidence"):
         print("  ⚠ POSITION recorded with an EMPTY evidence ledger — that's a hunch, "
               "not a position. Add evidence or downgrade to PASS.")
+
+    # Ledger-reconciliation advisory: does the recorded model_prob match the math
+    # logit(prior) + Σ ln(LR)? Advisory only — a deliberate, stated shade is allowed.
+    recon = memory_store.reconcile_ledger(stored)
+    if recon is not None and not recon["ok"]:
+        print(f"  ⚠ ledger does not reconcile: prior {recon['prior_prob']} × "
+              f"Σln(LR)={recon['sum_ln_lr']:+.2f} ⇒ model_prob ~{recon['implied_model_prob']}, "
+              f"but you recorded {recon['model_prob']} (gap {recon['gap']:+.2f} log-odds). "
+              "Reconcile the LRs with the number, or state the residual in the rationale.")
 
 
 def cmd_resolve(args) -> None:
