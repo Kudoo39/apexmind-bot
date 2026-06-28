@@ -31,7 +31,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import config
-from tools import (backtest, briefing, logger, memory_store, notification,
+from tools import (atomic_io, backtest, briefing, logger, memory_store, notification,
                   polymarket, portfolio, research, schema_sentinel, scoring)
 
 # Windows consoles default to cp1252 and choke on the emojis / sparklines we print.
@@ -130,7 +130,10 @@ def cmd_record(args) -> None:
 
 
 def cmd_resolve(args) -> None:
-    stored = memory_store.resolve_prediction(args.pred_id, args.outcome)
+    try:
+        stored = memory_store.resolve_prediction(args.pred_id, args.outcome)
+    except ValueError as e:        # already resolved — append-only book guard
+        sys.exit(str(e))
     if stored is None:
         sys.exit(f"No prediction with id {args.pred_id}")
     memory_store.recompute_calibration()
@@ -141,6 +144,26 @@ def cmd_resolve(args) -> None:
           f"brier={stored.get('brier')}")
 
 
+def cmd_revise(args) -> None:
+    """Safely edit an OPEN prediction in place — the sanctioned alternative to a raw
+    hand-edit of memory/predictions.json.
+
+    Accepts the patch JSON the same three ways as `record` (--file / inline / stdin).
+    Protected identity/lifecycle/resolution fields are refused, as are resolved rows.
+    """
+    patch = _load_json_input(args.file, args.json)
+    try:
+        updated = memory_store.revise(args.pred_id, patch)
+    except (ValueError, TypeError) as e:
+        sys.exit(str(e))
+    if updated is None:
+        sys.exit(f"No prediction with id {args.pred_id}")
+    logger.log_event("revise", {"pred_id": args.pred_id, "fields": sorted(patch)})
+    print(f"Revised {args.pred_id}: set {', '.join(sorted(patch)) or '(nothing)'} → "
+          f"model={updated.get('model_prob')} confidence={updated.get('confidence')} "
+          f"decision={updated.get('decision')} edge={updated.get('edge')}")
+
+
 def cmd_status(_args) -> None:
     from tabulate import tabulate
 
@@ -148,6 +171,9 @@ def cmd_status(_args) -> None:
     resolved = [p for p in preds if p.get("status") == "resolved"]
     openp = [p for p in preds if p.get("status") == "open"]
     calib = memory_store.recompute_calibration()
+    # Scoring set: resolved rows with a model_prob, superseded re-analyses excluded
+    # (matches calibration), so the per-category / tier tables aren't double-counted.
+    scored = memory_store.resolved_predictions()
 
     print(f"\nApexMind track record — {datetime.now(timezone.utc):%Y-%m-%d %H:%M UTC}")
     print(f"  total predictions : {len(preds)}")
@@ -161,13 +187,13 @@ def cmd_status(_args) -> None:
             print(f"  mean Brier        : {calib['mean_brier']}  "
                   f"(market {calib.get('market_baseline_brier')}, "
                   f"edge {edge:+} → {verdict})")
-        hr = scoring.hit_rate(resolved)
+        hr = scoring.hit_rate(scored)
         print(f"  position hit-rate : {hr['hit_rate']} "
               f"over {hr['n_positions']} positions")
 
         # --- Live reasoning baseline: the backtest, but on our OWN resolved calls. ---
         # Per-category — which niches actually pay (real edge vs noise)?
-        cats = scoring.category_report(resolved)
+        cats = scoring.category_report(scored)
         if cats:
             rows = [[c, v["n"], v["mean_brier"], v["edge_vs_market"],
                      v["position_hit_rate"], v["n_positions"]]
@@ -176,7 +202,7 @@ def cmd_status(_args) -> None:
             print(tabulate(rows, headers=["category", "n", "Brier", "edge",
                                           "hit", "pos"]))
         # Per dominant evidence tier — do primary/expert calls resolve better?
-        et = scoring.evidence_tier_report(resolved)
+        et = scoring.evidence_tier_report(scored)
         tiers = et.get("by_dominant_tier") or {}
         if tiers:
             rows = [[t, v["n"], v["mean_brier"]]
@@ -202,8 +228,9 @@ def cmd_status(_args) -> None:
 
 def cmd_reflect(_args) -> None:
     """Assemble a reflection packet of recently-resolved predictions."""
-    preds = memory_store.load_predictions()
-    resolved = [p for p in preds if p.get("status") == "resolved"]
+    # Deduped scoring set (superseded re-analyses excluded) so the packet's analytics
+    # and counts line up with calibration.
+    resolved = memory_store.resolved_predictions()
     calib = memory_store.recompute_calibration()
     evidence_analytics = scoring.evidence_tier_report(resolved)
     category_performance = scoring.category_report(resolved)
@@ -224,8 +251,7 @@ def cmd_reflect(_args) -> None:
                         "python main_agent.py lesson '<text>' --category <Cat>",
     }
     out = config.REFLECTION_PACKET
-    out.write_text(json.dumps(packet, indent=2, ensure_ascii=False),
-                   encoding="utf-8")
+    atomic_io.atomic_write_json(out, packet)
     logger.log_event("reflect", {"n_resolved": len(resolved)})
     print(f"Reflection packet ({len(resolved)} resolved) -> {out}")
     et = evidence_analytics["by_dominant_tier"]
@@ -374,8 +400,7 @@ def cmd_research(args) -> None:
 
     backend = ("brave" if config.BRAVE_API_KEY else
                "serpapi" if config.SERPAPI_KEY else "duckduckgo")
-    x_backend = ("x-api" if config.X_BEARER_TOKEN else
-                 "nitter" if config.NITTER_BASE else "web-fallback")
+    x_backend = "x-api" if config.X_BEARER_TOKEN else "web-fallback"
     print(f"# Research: {query}")
     print(f"_web backend: {backend} · x backend: {x_backend} "
           f"(results cached {config.RESEARCH_CACHE_TTL // 3600}h)_\n")
@@ -418,9 +443,8 @@ def cmd_backtest(args) -> None:
                  "history in range). Try a larger --days or different --market-ids.")
 
     md = backtest.format_report_md(report)
-    config.BACKTEST_REPORT_MD.write_text(md, encoding="utf-8")
-    config.BACKTEST_REPORT_JSON.write_text(
-        json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    atomic_io.atomic_write_text(config.BACKTEST_REPORT_MD, md)
+    atomic_io.atomic_write_json(config.BACKTEST_REPORT_JSON, report)
     logger.log_event("backtest", {"strategy": args.strategy, "days": args.days,
                                   "n_scored": report["n_scored"],
                                   "edge_vs_market": report["edge_vs_market"]})
@@ -524,6 +548,15 @@ def build_parser() -> argparse.ArgumentParser:
     rv.add_argument("pred_id")
     rv.add_argument("outcome", type=int, choices=[0, 1], help="1=YES, 0=NO")
     rv.set_defaults(func=cmd_resolve)
+
+    rev = sub.add_parser("revise",
+                         help="safely edit an OPEN prediction in place (JSON patch)")
+    rev.add_argument("pred_id")
+    rev.add_argument("json", nargs="?", default="-",
+                     help="patch JSON, or '-' / omit to read stdin")
+    rev.add_argument("--file", "-f",
+                     help="read the patch JSON from a file (best on Windows)")
+    rev.set_defaults(func=cmd_revise)
 
     sub.add_parser("status", help="show track record & calibration").set_defaults(
         func=cmd_status)

@@ -7,7 +7,28 @@ vs. luck and to detect systematic bias.
 
 from __future__ import annotations
 
+import math
 from typing import Any
+
+import config
+
+
+def _wilson_ci(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """Wilson score 95% CI for a binomial rate k/n.
+
+    A raw k/n point estimate is meaningless at the small n the early track record
+    has; the Wilson interval stays inside [0, 1], degrades gracefully at k=0 / k=n,
+    and **widens as n shrinks** — exactly the "this bucket is noise" signal the
+    Reflection role needs.
+    """
+    if n <= 0:
+        return (0.0, 1.0)
+    phat = k / n
+    z2 = z * z
+    denom = 1.0 + z2 / n
+    center = (phat + z2 / (2 * n)) / denom
+    margin = (z * math.sqrt(phat * (1 - phat) / n + z2 / (4 * n * n))) / denom
+    return (round(max(0.0, center - margin), 3), round(min(1.0, center + margin), 3))
 
 
 def brier_score(prob_yes: float, outcome: int) -> float:
@@ -59,15 +80,22 @@ def calibration_report(resolved: list[dict[str, Any]],
         b["sum_outcome"] += outcome
 
     n = len(resolved)
+    min_n = config.MIN_BUCKET_N
     table = []
     for b in buckets:
         if b["n"] == 0:
             continue
+        ci_low, ci_high = _wilson_ci(b["sum_outcome"], b["n"])
         table.append({
             "band": f"{b['lo']:.0%}-{b['hi']:.0%}",
             "n": b["n"],
             "avg_forecast": round(b["sum_pred"] / b["n"], 3),
             "realised_yes_rate": round(b["sum_outcome"] / b["n"], 3),
+            # Wilson 95% CI on the realised rate; `reliable` is False below the floor,
+            # in which case `gap` is sampling noise and should be ignored.
+            "ci_low": ci_low,
+            "ci_high": ci_high,
+            "reliable": b["n"] >= min_n,
             "gap": round(b["sum_pred"] / b["n"] - b["sum_outcome"] / b["n"], 3),
         })
 
@@ -81,6 +109,9 @@ def calibration_report(resolved: list[dict[str, Any]],
         "market_baseline_brier": market_brier,   # how the crowd did on the same set
         "edge_vs_market": edge,                  # +ve => ApexMind beat the market
         "buckets": table,
+        "min_reliable_n": min_n,
+        "note": (f"buckets with n < {min_n} are flagged reliable=False — treat their "
+                 "gap as noise; the Wilson ci_low/ci_high bracket each realised rate."),
     }
 
 

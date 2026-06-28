@@ -14,8 +14,14 @@ Two research pathways exist — use the right one:
 
 Backend selection (best available first; no keys required):
   web_search  : Brave API (BRAVE_API_KEY) → SerpAPI (SERPAPI_KEY) → DuckDuckGo HTML
-  x_search    : X API v2 (X_BEARER_TOKEN) → Nitter (APEX_NITTER_BASE) → web fallback
+  x_search    : X API v2 (X_BEARER_TOKEN) → degraded site:x.com web fallback
   browse_page : direct fetch + readable-text extraction
+
+The DuckDuckGo HTML path is a brittle, frequently-rate-limited press-tier *fallback*
+for keyless headless runs only — it returns [] when blocked, never raising. The old
+Nitter X backend was removed (most public instances are defunct). **Inside a live
+Claude Code session, prefer the native WebSearch / WebFetch tools** — they are more
+reliable than any scraper here.
 
 Results are cached as JSON under data/research_cache/ with a TTL (config) to avoid
 redundant calls and to stay rate-limit friendly. A module-level throttle enforces a
@@ -270,8 +276,6 @@ def x_search(query: str, limit: int = 5, mode: str = "Latest",
     try:
         if config.X_BEARER_TOKEN:
             out = _x_api_search(query, limit, mode)
-        elif config.NITTER_BASE:
-            out = _nitter_search(query, limit, mode)
         else:
             out = _x_web_fallback(query, limit)
     except requests.RequestException:
@@ -299,31 +303,6 @@ def _x_api_search(query: str, limit: int, mode: str) -> list[dict[str, str]]:
         out.append({"text": _clean(t.get("text")), "author": str(t.get("author_id", "")),
                     "url": f"https://x.com/i/web/status/{t.get('id', '')}",
                     "created_at": t.get("created_at", ""), "source": "x-api"})
-    return out
-
-
-def _nitter_search(query: str, limit: int, mode: str) -> list[dict[str, str]]:
-    base = config.NITTER_BASE.rstrip("/")
-    resp = _http_get(f"{base}/search",
-                     params={"q": query,
-                             "f": "tweets" if mode.lower() == "latest" else ""})
-    if resp.status_code != 200 or not _HAS_BS4:
-        return []
-    out = []
-    soup = BeautifulSoup(resp.text, "html.parser")
-    for item in soup.select(".timeline-item"):
-        content = item.select_one(".tweet-content")
-        if not content:
-            continue
-        user = item.select_one(".username")
-        link = item.select_one("a.tweet-link")
-        href = link.get("href", "") if link else ""
-        url = (base + href) if href.startswith("/") else href
-        out.append({"text": _clean(content.get_text(" ", strip=True)),
-                    "author": _clean(user.get_text(strip=True)) if user else "",
-                    "url": url, "created_at": "", "source": "nitter"})
-        if len(out) >= limit:
-            break
     return out
 
 

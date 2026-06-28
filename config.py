@@ -115,9 +115,10 @@ RESEARCH_USER_AGENT = _env(
 # Optional web-search backends (auto-selected: Brave > SerpAPI > DuckDuckGo).
 BRAVE_API_KEY = _env("BRAVE_API_KEY", "")
 SERPAPI_KEY = _env("SERPAPI_KEY", "")
-# Optional X/Twitter backends (auto-selected: X API > Nitter > web fallback).
+# Optional X/Twitter backend (X API v2; otherwise a degraded site:x.com web fallback).
+# The old self-hosted/public Nitter path was removed — most public instances are
+# defunct, so it returned nothing while adding broken code to maintain.
 X_BEARER_TOKEN = _env("X_BEARER_TOKEN", "")
-NITTER_BASE = _env("APEX_NITTER_BASE", "")            # e.g. https://nitter.net
 
 # Briefing research enrichment — ON by default (set APEX_INCLUDE_RESEARCH=false to
 # disable; it adds a few network calls to each scan but front-loads the evidence).
@@ -149,6 +150,12 @@ SCHEMA_SENTINEL_INTERVAL = _env("APEX_SCHEMA_SENTINEL_INTERVAL", 86400)  # s bet
 MIN_EDGE = _env("APEX_MIN_EDGE", 0.08)
 # Minimum confidence the Specialist must express to act on an edge.
 MIN_CONFIDENCE = _env("APEX_MIN_CONFIDENCE", 0.55)
+
+# Calibration reliability floor: a bucket with fewer than MIN_BUCKET_N resolved
+# markets is too small to trust — its realised rate (and `gap`) is noise, not signal.
+# scoring.calibration_report flags such buckets `reliable: False` and brackets every
+# bucket's realised rate with a Wilson 95% CI so the Reflection role doesn't chase it.
+MIN_BUCKET_N = _env("APEX_MIN_BUCKET_N", 8)
 
 # Portfolio risk caps (tools/portfolio.py): flag when one correlated factor carries
 # too much conviction or too many positions — a single shock shouldn't sink the book.

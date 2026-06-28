@@ -43,8 +43,8 @@ def exposure_report() -> dict[str, Any]:
     """Aggregate open POSITIONs by category and shared factor, with risk flags."""
     # Skip rows another row supersedes (a re-analysis the dedup guard tagged) so a
     # stray duplicate can never double-count conviction even if one slipped through.
-    _superseded = {pid for p in memory_store.open_predictions()
-                   for pid in (p.get("supersedes") or [])}
+    # Shared definition with scoring/calibration via memory_store.superseded_ids().
+    _superseded = memory_store.superseded_ids()
     positions = [p for p in memory_store.open_predictions()
                  if p.get("decision") == "POSITION"
                  and p.get("pred_id") not in _superseded]

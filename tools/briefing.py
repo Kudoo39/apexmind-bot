@@ -11,12 +11,11 @@ Output is Markdown written to data/briefing_latest.md.
 
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from typing import Any
 
 import config
-from tools import memory_store, portfolio, research
+from tools import atomic_io, memory_store, portfolio, research
 
 
 def _fmt_history(h: dict[str, Any] | None) -> str:
@@ -204,10 +203,10 @@ def build_briefing(shortlist: list[dict[str, Any]],
 
 def write_briefing(shortlist: list[dict[str, Any]], total_scanned: int) -> str:
     text = build_briefing(shortlist, total_scanned)
-    config.BRIEFING_FILE.write_text(text, encoding="utf-8")
-    # Also cache the raw shortlist so `record` can backfill market fields.
-    config.MARKETS_CACHE.write_text(
-        json.dumps({"updated_at": datetime.now(timezone.utc).isoformat(),
-                    "shortlist": shortlist}, indent=2),
-        encoding="utf-8")
+    atomic_io.atomic_write_text(config.BRIEFING_FILE, text)
+    # Also cache the raw shortlist so `record` can backfill market fields. Atomic so a
+    # crash mid-write can't leave a truncated cache that silently mis-backfills rows.
+    atomic_io.atomic_write_json(
+        config.MARKETS_CACHE,
+        {"updated_at": datetime.now(timezone.utc).isoformat(), "shortlist": shortlist})
     return text

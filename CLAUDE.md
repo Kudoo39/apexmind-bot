@@ -146,7 +146,7 @@ You have two research pathways — use whichever fits:
     or `python main_agent.py research "<q>" --onchain` / `--polling`. Log results
     with `evidence_from_onchain(...)` / `evidence_from_polling(...)`.
 - Backends auto-select: web = Brave → SerpAPI → DuckDuckGo (keyless); X = X API →
-  Nitter → web fallback. Keys are optional, set in `.env`. If a source is down the
+  site:x.com web fallback. Keys are optional, set in `.env`. If a source is down the
   call returns empty — **name the data gap and lower `confidence`, never fabricate.**
 - Per-market research snippets inside the briefing are **on by default**
   (`APEX_INCLUDE_RESEARCH=true`); set it `false` to skip the extra scan-time calls.
@@ -209,7 +209,8 @@ auto-upgrades, no code change).
 | `python main_agent.py portfolio` | open-position exposure & correlation flags |
 | `python main_agent.py lesson "<text>" --category <Cat>` | append a (category-routed) lesson |
 | `python main_agent.py status` | track record & calibration |
-| `python main_agent.py resolve <id> <0\|1>` | resolve a market manually |
+| `python main_agent.py resolve <id> <0\|1>` | resolve a market manually (refuses to re-resolve) |
+| `python main_agent.py revise <id> --file patch.json` | safely edit an OPEN row in place (protected fields refused) |
 | `python main_agent.py reflect` | build reflection packet |
 | `python main_agent.py lesson "<text>"` | append a lesson |
 | `python run_analysis.py [--auto]` | scheduled run (prepare, or fully headless) |

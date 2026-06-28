@@ -23,6 +23,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import config
+from tools import atomic_io
 
 
 # --------------------------------------------------------------------------- #
@@ -39,8 +40,9 @@ def _load(path, default):
 
 
 def _save(path, data) -> None:
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False),
-                    encoding="utf-8")
+    # Atomic write: a crash / full disk mid-write must never truncate the
+    # source-of-truth book (or calibration / beliefs). See tools/atomic_io.py.
+    atomic_io.atomic_write_json(path, data)
 
 
 def _now() -> str:
@@ -133,6 +135,26 @@ def _backfill_from_cache(entry: dict[str, Any]) -> None:
             break
 
 
+def _next_pred_id(preds: list[dict[str, Any]]) -> str:
+    """Next collision-proof prediction id: max numeric `pXXXXX` + 1.
+
+    NOT `len(preds)+1`: the README invites hand-editing, and deleting any row would
+    make a count-based id collide with an existing one (two rows sharing a pred_id —
+    every resolve/add_evidence/reflect lookup then silently hits the wrong row).
+    Positional-but-monotonic survives deletions and voids. Non-`p` ids (e.g. the
+    backtest's `bt-…`) are ignored.
+    """
+    mx = 0
+    for p in preds:
+        pid = str(p.get("pred_id") or "")
+        if pid.startswith("p"):
+            try:
+                mx = max(mx, int(pid[1:]))
+            except ValueError:
+                continue
+    return f"p{mx + 1:05d}"
+
+
 def record_prediction(entry: dict[str, Any]) -> dict[str, Any]:
     """Append a new prediction. Returns the stored entry (with id + timestamps).
 
@@ -165,7 +187,7 @@ def record_prediction(entry: dict[str, Any]) -> dict[str, Any]:
                 f"add_evidence('{dupes[-1]['pred_id']}', [...]). "
                 f"Pass allow_duplicate=True only for a genuinely separate position.",
                 stacklevel=2)
-    entry.setdefault("pred_id", f"p{len(preds) + 1:05d}")
+    entry.setdefault("pred_id", _next_pred_id(preds))
     entry.setdefault("created_at", _now())
     entry.setdefault("status", "open")        # open | resolved
     entry.setdefault("outcome", None)         # 1=YES, 0=NO once resolved
@@ -261,23 +283,121 @@ def open_predictions() -> list[dict[str, Any]]:
     return [p for p in load_predictions() if p.get("status") == "open"]
 
 
+def superseded_ids(preds: list[dict[str, Any]] | None = None) -> set[str]:
+    """Pred ids that a LATER row supersedes.
+
+    The dedup guard in `record_prediction` tags a re-analysis of an already-open
+    market with `supersedes: [<old id>]`. Those old rows are the SAME underlying bet
+    and must be excluded everywhere they'd otherwise be double-counted — exposure
+    (`portfolio`) and the calibration / track-record stats (`scoring`). This is the
+    one shared definition both call, so they can never drift apart.
+    """
+    preds = load_predictions() if preds is None else preds
+    out: set[str] = set()
+    for p in preds:
+        for pid in (p.get("supersedes") or []):
+            if pid:
+                out.add(str(pid))
+    return out
+
+
+def resolved_predictions(include_superseded: bool = False) -> list[dict[str, Any]]:
+    """Canonical resolved track record for scoring.
+
+    Resolved rows that carry a `model_prob`, with superseded re-analyses dropped by
+    default (so a revisited bet is scored once). Pass include_superseded=True for the
+    raw set.
+    """
+    preds = load_predictions()
+    rows = [p for p in preds
+            if p.get("status") == "resolved" and p.get("model_prob") is not None]
+    if include_superseded:
+        return rows
+    sup = superseded_ids(preds)
+    return [p for p in rows if str(p.get("pred_id")) not in sup]
+
+
 def resolve_prediction(pred_id: str, outcome: int) -> dict[str, Any] | None:
-    """Mark a prediction resolved (outcome 1=YES, 0=NO) and score it."""
+    """Mark a prediction resolved (outcome 1=YES, 0=NO) and score it.
+
+    Refuses to re-resolve an already-resolved row: the book is append-only and a
+    settled outcome/Brier is final. (`auto-resolve` only ever iterates OPEN rows, so
+    it never trips this.) Returns None if no row matches; raises ValueError on a
+    re-resolve attempt.
+    """
     from tools.scoring import brier_score
 
     preds = load_predictions()
     target = None
     for p in preds:
         if p.get("pred_id") == pred_id:
-            p["status"] = "resolved"
-            p["outcome"] = int(outcome)
-            p["resolved_at"] = _now()
-            if p.get("model_prob") is not None:
-                p["brier"] = round(brier_score(p["model_prob"], outcome), 4)
             target = p
             break
-    if target is not None:
-        save_predictions(preds)
+    if target is None:
+        return None
+    if target.get("status") == "resolved":
+        raise ValueError(
+            f"{pred_id} is already resolved (outcome={target.get('outcome')}, "
+            f"brier={target.get('brier')}); the book is append-only — refusing to "
+            f"re-resolve. If the first resolution was genuinely wrong, hand-edit that "
+            f"row in memory/predictions.json, then re-run `status`.")
+    target["status"] = "resolved"
+    target["outcome"] = int(outcome)
+    target["resolved_at"] = _now()
+    if target.get("model_prob") is not None:
+        target["brier"] = round(brier_score(target["model_prob"], outcome), 4)
+    save_predictions(preds)
+    return target
+
+
+# Identity / lifecycle / resolution fields a revise() must never touch — the book is
+# append-only and a resolution is final. Everything else (model_prob, confidence,
+# decision, direction, conviction, rationale, key_uncertainty, evidence, …) is fair
+# game on an OPEN row.
+_PROTECTED_FIELDS = frozenset({
+    "pred_id", "created_at", "status", "supersedes",
+    "outcome", "brier", "resolved_at",
+})
+
+
+def revise(pred_id: str, patch: dict[str, Any]) -> dict[str, Any] | None:
+    """Safely edit an OPEN prediction in place — the sanctioned alternative to a raw
+    hand-edit of memory/predictions.json.
+
+    Refuses to touch any protected identity/lifecycle/resolution field, and refuses to
+    revise a resolved row at all. Re-derives `edge` when model/market prob change and
+    normalises any patched evidence. Returns the updated row, or None if not found;
+    raises ValueError on a protected field or a resolved row, TypeError on a non-dict
+    patch.
+    """
+    if not isinstance(patch, dict):
+        raise TypeError("patch must be a dict of {field: new_value}")
+    blocked = _PROTECTED_FIELDS & set(patch)
+    if blocked:
+        raise ValueError(
+            f"refusing to revise protected field(s) {sorted(blocked)} — these are "
+            f"identity/lifecycle/resolution fields. Only an OPEN row's analysis fields "
+            f"(model_prob, confidence, decision, direction, conviction, rationale, "
+            f"key_uncertainty, half_life, prior_prob, market_prob, evidence) may be revised.")
+    preds = load_predictions()
+    target = None
+    for p in preds:
+        if p.get("pred_id") == pred_id:
+            target = p
+            break
+    if target is None:
+        return None
+    if target.get("status") == "resolved":
+        raise ValueError(
+            f"{pred_id} is resolved; the book is append-only — a settled row cannot "
+            f"be revised.")
+    patch = dict(patch)
+    if "evidence" in patch:
+        patch["evidence"] = _normalise_evidence(patch["evidence"])
+    target.update(patch)
+    if target.get("market_prob") is not None and target.get("model_prob") is not None:
+        target["edge"] = round(target["model_prob"] - target["market_prob"], 4)
+    save_predictions(preds)
     return target
 
 
@@ -343,9 +463,10 @@ def relevant_lessons(categories: list[str]) -> list[dict[str, Any]]:
 def recompute_calibration() -> dict[str, Any]:
     from tools.scoring import calibration_report
 
-    resolved = [p for p in load_predictions()
-                if p.get("status") == "resolved" and p.get("model_prob") is not None]
-    report = calibration_report(resolved)
+    # resolved_predictions() drops superseded re-analyses so a revisited bet isn't
+    # double-scored (which would bias calibration toward oft-revisited high-conviction
+    # markets) — the same exclusion portfolio applies to exposure.
+    report = calibration_report(resolved_predictions())
     report["updated_at"] = _now()
     _save(config.CALIBRATION_FILE, report)
     return report
