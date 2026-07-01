@@ -9,6 +9,7 @@ only ever contains tradeable, resolvable markets.
 from __future__ import annotations
 
 import json
+import math
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -227,6 +228,17 @@ def scan_markets(limit: int | None = None) -> list[dict[str, Any]]:
     return out
 
 
+def _volume_weight(volume_24hr: float) -> float:
+    """Dampened, monotone activity multiplier for the shortlist score.
+
+    log1p keeps the ordering (0 < $100 < $1M of 24h volume — roughly 1.0 → 1.23 →
+    1.69) without letting a marquee market's raw volume swamp the category-priority
+    and analysability terms. The previous `1 + v ** 0.0001` was dead weight: ~2.000
+    for v=1 and ~2.0015 for v=5M — a binary "has any volume" flag.
+    """
+    return 1.0 + math.log1p(max(volume_24hr, 0.0)) / 20.0
+
+
 def _is_intraday(m: dict[str, Any]) -> bool:
     """True for intraday / coin-flip markets we deliberately refuse to analyse."""
     q = (m.get("question") or "").lower()
@@ -266,8 +278,8 @@ def shortlist(markets: list[dict[str, Any]],
         # Reward the analysable band but DON'T peak at the 0.50 coin-flip.
         analysable = 1.0 - abs(m["market_prob"] - 0.5)          # 0.5 … 1.0
         d = m["days_to_resolution"] or 0
-        horizon_fit = 1.0 if 2 <= d <= 180 else 0.7             # full weight for the 30-180d sweet spot
-        return prio * analysable * horizon_fit * (1.0 + m["volume_24hr"] ** 0.0001)
+        horizon_fit = 1.0 if 2 <= d <= 180 else 0.7             # full weight for the 2-180d window; discount same-day churn & long-dated dead capital
+        return prio * analysable * horizon_fit * _volume_weight(m["volume_24hr"])
 
     candidates.sort(key=score, reverse=True)
 
