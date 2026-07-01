@@ -101,7 +101,10 @@ def cmd_record(args) -> None:
 
     # record_prediction() backfills market fields from the cached shortlist on EVERY
     # call path (CLI/skill/script) and warns on a duplicate open market_id.
-    stored = memory_store.record_prediction(entry)
+    try:
+        stored = memory_store.record_prediction(entry)
+    except ValueError as e:       # impossible field value (e.g. model_prob=52)
+        sys.exit(str(e))
     logger.log_event("prediction", stored)
     print(f"Recorded {stored['pred_id']}: {stored.get('decision', '?')} "
           f"{stored.get('direction', '')}  model={stored.get('model_prob')} "

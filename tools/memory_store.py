@@ -114,6 +114,40 @@ def _normalise_evidence(evidence: Any) -> list[dict[str, Any]]:
     return out
 
 
+# Field constraints enforced at every sanctioned write path (record + revise).
+# Unlike the dedup guard these are NOT judgment calls — model_prob=52 can never be
+# an intended probability (it's a typo for 0.52) — so violations raise ValueError
+# instead of warning. A wrong number here silently corrupts Brier, calibration and
+# every report built on them; None stays allowed everywhere it is today.
+_PROB_FIELDS = ("model_prob", "confidence", "market_prob", "prior_prob")
+_DECISIONS = ("POSITION", "PASS")
+_DIRECTIONS = ("YES", "NO")
+
+
+def _validate_entry(entry: dict[str, Any], context: str) -> None:
+    """Raise ValueError on impossible field values (absent/None fields are skipped)."""
+    for f in _PROB_FIELDS:
+        v = entry.get(f)
+        if v is None:
+            continue
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            raise ValueError(f"{context}: {f} must be a number in [0, 1], got {v!r}")
+        if not 0.0 <= v <= 1.0:
+            raise ValueError(
+                f"{context}: {f}={v!r} is outside [0, 1] — a probability is a "
+                f"fraction (0.52), not a percentage (52)")
+    v = entry.get("decision")
+    if v is not None and v not in _DECISIONS:
+        raise ValueError(f"{context}: decision must be one of {_DECISIONS}, got {v!r}")
+    v = entry.get("direction")
+    if v is not None and v not in _DIRECTIONS:
+        raise ValueError(f"{context}: direction must be one of {_DIRECTIONS}, got {v!r}")
+    v = entry.get("conviction")
+    if v is not None and (isinstance(v, bool) or not isinstance(v, int)
+                          or not 1 <= v <= 5):
+        raise ValueError(f"{context}: conviction must be an int in 1..5, got {v!r}")
+
+
 def _backfill_from_cache(entry: dict[str, Any]) -> None:
     """Fill market fields from the cached shortlist when only an id was given, so
     EVERY write path (CLI, skill, direct script) yields a complete row. The portfolio
@@ -167,6 +201,7 @@ def record_prediction(entry: dict[str, Any]) -> dict[str, Any]:
     """
     preds = load_predictions()
     entry = dict(entry)
+    _validate_entry(entry, "record")
     _backfill_from_cache(entry)
     # Dedup guard: the append-only store has no dedup by market_id. Re-recording the
     # same OPEN market is almost always a re-analysis, not a second independent bet; a
@@ -379,6 +414,7 @@ def revise(pred_id: str, patch: dict[str, Any]) -> dict[str, Any] | None:
             f"identity/lifecycle/resolution fields. Only an OPEN row's analysis fields "
             f"(model_prob, confidence, decision, direction, conviction, rationale, "
             f"key_uncertainty, half_life, prior_prob, market_prob, evidence) may be revised.")
+    _validate_entry(patch, "revise")
     preds = load_predictions()
     target = None
     for p in preds:
