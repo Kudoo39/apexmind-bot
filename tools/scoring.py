@@ -116,16 +116,27 @@ def calibration_report(resolved: list[dict[str, Any]],
 
 
 def hit_rate(resolved: list[dict[str, Any]]) -> dict[str, Any]:
-    """Directional accuracy among POSITION calls (did we pick the right side?)."""
+    """Directional accuracy among POSITION calls (did we pick the right side?).
+
+    The bet side is `direction` — the sign of the edge vs the MARKET price, not vs
+    0.5 (model 0.52 against a 0.528 market is a NO bet; backtest._pnl settles by
+    direction the same way). Fallbacks when direction is absent: the sign of
+    (model_prob − market_prob), then the old model_prob >= 0.5.
+    """
     positions = [p for p in resolved
                  if p.get("decision") == "POSITION" and p.get("model_prob") is not None]
     if not positions:
         return {"n_positions": 0, "hit_rate": None}
     hits = 0
     for p in positions:
-        predicted_yes = p["model_prob"] >= 0.5
-        actual_yes = int(p["outcome"]) == 1
-        if predicted_yes == actual_yes:
+        direction = p.get("direction")
+        if direction in ("YES", "NO"):
+            predicted_yes = direction == "YES"
+        elif p.get("market_prob") is not None:
+            predicted_yes = p["model_prob"] >= p["market_prob"]
+        else:
+            predicted_yes = p["model_prob"] >= 0.5
+        if predicted_yes == (int(p["outcome"]) == 1):
             hits += 1
     return {"n_positions": len(positions),
             "hit_rate": round(hits / len(positions), 3)}
