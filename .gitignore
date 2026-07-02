@@ -13,6 +13,9 @@ venv/
 env/
 
 # ApexMind generated artifacts (regenerated each run)
+notify.json
+pred.json
+memory/.predictions.lock
 data/briefing_latest.md
 data/decision_memo_latest.md
 data/reflection_packet.json

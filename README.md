@@ -108,8 +108,9 @@ producing a decision memo. Add a focus, e.g. `/apexmind focus on macro/rates mar
 2. **Reason** (in Claude Code): *"Read system_prompts.md and data/briefing_latest.md,
    then run the Supervisor and Specialist roles and record each call."*
 3. **Notify**: write a small `notify.json` (executive_summary, macro_frame,
-   bet_recommendation) and run `python main_agent.py notify --file notify.json`
-   to push the Decision Memo to Telegram.
+   bet_recommendation — see `docs/notify.example.json`) and run
+   `python main_agent.py notify --file notify.json` to push the Decision Memo
+   to Telegram. (`notify.json` is a runtime artifact and gitignored.)
 4. **Review**: `python main_agent.py status`
 5. **Settle**: `python main_agent.py auto-resolve` — checks Polymarket and resolves
    any of your predictions that have settled (no manual outcome lookup needed).
@@ -151,6 +152,8 @@ producing a decision memo. Add a focus, e.g. `/apexmind focus on macro/rates mar
 
 ### The `notify.json` payload
 All fields optional — with none, ApexMind notifies your current open POSITIONs.
+A copy of this sample lives at `docs/notify.example.json`; the `notify.json` you
+write at runtime stays in the repo root and is gitignored.
 ```json
 {
   "executive_summary": "Two edges today, both from resolution-timing detail.",
