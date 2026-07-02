@@ -15,28 +15,15 @@ from __future__ import annotations
 from typing import Any
 
 import config
-from tools import memory_store, polymarket
-
-# Coarse correlated factors — markets sharing one tend to resolve together.
-_FACTOR_KEYWORDS: list[tuple[str, list[str]]] = [
-    ("global-conflict", ["invade", "invasion", " war ", "ceasefire", "regime",
-                         "nuclear", "annex", "military", "strike", "missile",
-                         "troops", "attack"]),
-    ("us-rates", ["fed ", "rate cut", "rate hike", "interest rate", "fomc",
-                  "inflation", " cpi", "recession"]),
-    ("us-politics", ["trump", "biden", "harris", "election", "senate", "congress",
-                     "president", "nominee", "impeach"]),
-    ("crypto-beta", [" btc", "bitcoin", "ethereum", " eth ", "solana", " crypto",
-                     "token"]),
-]
+from tools import memory_store, polymarket, taxonomy
 
 
 def _factor(market: dict[str, Any]) -> str:
-    q = " " + (market.get("question") or "").lower() + " "
-    for fac, kws in _FACTOR_KEYWORDS:
-        if any(k in q for k in kws):
-            return fac
-    return (market.get("category") or "other").lower()
+    # Coarse correlated factors — markets sharing one tend to resolve together.
+    # The keyword lists live in tools/taxonomy.py, shared with polymarket.categorize
+    # so the two classifiers can never drift apart.
+    fac = taxonomy.match_factor(market.get("question") or "")
+    return fac or (market.get("category") or "other").lower()
 
 
 def exposure_report() -> dict[str, Any]:

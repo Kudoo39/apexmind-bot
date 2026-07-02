@@ -18,7 +18,7 @@ import requests
 from dateutil import parser as dateparser
 
 import config
-from tools import schema_sentinel
+from tools import schema_sentinel, taxonomy
 
 _HEADERS = {"User-Agent": "ApexMind/1.0"}
 
@@ -132,55 +132,14 @@ def _normalise(raw: dict[str, Any]) -> dict[str, Any] | None:
 
 
 # --------------------------------------------------------------------------- #
-# Category detection — keyword classifier on the question (+ raw category fallback)
-# Ordered: more specific buckets first so e.g. "Trump vs Harris" lands in Politics,
-# not Sports (which owns the generic " vs ").
+# Category detection — the shared keyword taxonomy (tools/taxonomy.py) on the
+# question text, with the raw Gamma `category` as fallback.
 # --------------------------------------------------------------------------- #
-_CATEGORY_KEYWORDS: list[tuple[str, list[str]]] = [
-    ("Crypto", [" btc", "bitcoin", "ethereum", " eth ", "solana", " sol ", " xrp",
-                "dogecoin", "memecoin", "altcoin", "stablecoin", " crypto", "token",
-                "up or down", "binance", "coinbase", "on-chain", "onchain"]),
-    ("Politics", ["election", "president", "senate", "congress", "governor",
-                  "primary", "nominee", "parliament", "prime minister", "minister",
-                  "government", "impeach", " vote", "ballot", "candidate", " poll",
-                  "referendum", "cabinet", "sworn in", "resign", "approval rating",
-                  # geopolitics & named leaders (high-edge resolution-criteria plays)
-                  "invade", "invasion", " war ", "ceasefire", "regime", "sanction",
-                  "nuclear", "annex", "secede", "leader of", "coup d", "treaty",
-                  " nato", "greenland", "taiwan", "trump", "putin", "zelensky",
-                  "netanyahu", "kim jong", "indicted", "pardon", "tariff war",
-                  # named conflict actors/theatres that fall through the cracks above
-                  "iran", "israel", "gaza", "ukraine", "russia", "hamas",
-                  "hezbollah", "houthi", "north korea", "venezuela", "missile",
-                  "airstrike", "air strike", "drone strike", "hostage", "occupy",
-                  " control by", " control of", "military"]),
-    ("Economy", ["fed ", "federal reserve", "interest rate", "rate cut", "rate hike",
-                 "inflation", " cpi", " gdp", "unemployment", "jobs report",
-                 "recession", " ecb", "fomc", "tariff", "yield"]),
-    ("Weather", ["temperature", "weather", " rain", " snow", "hurricane", "degrees",
-                 "celsius", "fahrenheit", " storm"]),
-    ("Culture", ["movie", "box office", "oscar", "grammy", "emmy", "album",
-                 "billboard", " song", " award", "rotten tomatoes", "netflix",
-                 "spotify", " episode", " season"]),
-    ("Sports", [" vs ", " vs.", "match", " beat ", "defeat", "championship",
-                "playoff", " cup", "league", " nba", " nfl", " mlb", " nhl",
-                " ufc", " fight", "soccer", "football", "tennis", " golf", " f1",
-                "grand prix", "world cup", "esports", "counter-strike", " dota",
-                "valorant", "wins the game", "to win",
-                # betting-structure props that carry no team/league noun above and so
-                # leak into "Other" — catch them so the efficient-category caps bite.
-                "spread:", "exact score", "moneyline", "o/u", "to score",
-                "+ goals", "+ goal", "halftime", "half-time", "leading at",
-                "strikeouts", "home runs", " win on 20", "draw at"]),
-]
-
-
 def categorize(market: dict) -> str:
     """Best-effort market category from the question text (raw `category` as fallback)."""
-    q = " " + (market.get("question") or "").lower() + " "
-    for cat, kws in _CATEGORY_KEYWORDS:
-        if any(k in q for k in kws):
-            return cat
+    cat = taxonomy.match_category(market.get("question") or "")
+    if cat:
+        return cat
     raw = (market.get("category") or "").strip()
     return raw.title()[:16] if raw else "Other"
 
