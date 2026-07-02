@@ -322,15 +322,16 @@ def check_resolution(market_id: str) -> dict[str, Any]:
 
     Returns a dict:
       {market_id, found, closed, resolved, outcome (1=YES,0=NO,None=unclear),
-       yes_price, question}
+       yes_price, uma_status, question}
     A market is treated as *resolved* only when it is closed AND its final YES
-    price is unambiguous (≈1 or ≈0). Anything in between is left for a human.
+    price is unambiguous (≈1 or ≈0) AND any explicit UMA resolution status is not
+    still pending/disputed. Anything in between is left for a human.
     """
     raw = get_market_by_id(market_id)
     if raw is None:
         return {"market_id": market_id, "found": False, "closed": False,
                 "resolved": False, "outcome": None, "yes_price": None,
-                "question": None}
+                "uma_status": None, "question": None}
 
     outcomes = _parse_json_field(raw.get("outcomes")) or []
     prices = _parse_json_field(raw.get("outcomePrices")) or []
@@ -342,12 +343,18 @@ def check_resolution(market_id: str) -> dict[str, Any]:
     yes_price = _to_float(prices[yes_idx], default=-1.0) if len(prices) > yes_idx else -1.0
 
     closed = bool(raw.get("closed"))
-    # Some markets also expose an explicit UMA resolution status.
-    uma = str(raw.get("umaResolutionStatus") or "").lower()
+    # Some markets also expose an explicit UMA resolution status. When it is present
+    # but NOT "resolved" (proposed/disputed/challenged/…), a pinned price can still
+    # be a pending or disputed settlement the oracle may yet reverse — treat that as
+    # ambiguous-closed (outcome=None, left for a human / a later pass) instead of
+    # settling the book on it. Absent or "resolved" keeps the price-based inference
+    # exactly as before.
+    uma = str(raw.get("umaResolutionStatus") or "").strip().lower()
+    uma_pending = bool(uma) and uma != "resolved"
     looks_resolved = closed or uma == "resolved"
 
     outcome: int | None = None
-    if looks_resolved and 0.0 <= yes_price <= 1.0:
+    if looks_resolved and not uma_pending and 0.0 <= yes_price <= 1.0:
         if yes_price >= 0.99:
             outcome = 1
         elif yes_price <= 0.01:
@@ -360,6 +367,7 @@ def check_resolution(market_id: str) -> dict[str, Any]:
         "resolved": outcome is not None,
         "outcome": outcome,
         "yes_price": round(yes_price, 4) if yes_price >= 0 else None,
+        "uma_status": uma or None,
         "question": (raw.get("question") or "").strip(),
     }
 
