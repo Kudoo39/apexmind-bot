@@ -18,7 +18,10 @@ from __future__ import annotations
 
 import json
 import math
+import os
+import time
 import warnings
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Any
 
@@ -47,6 +50,69 @@ def _save(path, data) -> None:
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+# --------------------------------------------------------------------------- #
+# Cross-process lock on the book
+# --------------------------------------------------------------------------- #
+# apex_daily.py (Task Scheduler) can run auto-resolve while an operator records in
+# a Claude Code session. atomic_io makes each individual file write all-or-nothing,
+# but a concurrent load→mutate→save still silently drops one writer's changes, so
+# every mutating path holds this advisory lock file. Dependency-free: os.open with
+# O_CREAT|O_EXCL is atomic on both Windows (primary host) and POSIX. Module-level
+# constants so tests can shrink the timeout.
+_LOCK_TIMEOUT = 10.0       # seconds a writer waits before raising, not corrupting
+_LOCK_STALE_AFTER = 60.0   # a lock older than this is a dead process — break it
+_LOCK_POLL = 0.05          # seconds between acquisition attempts
+
+
+def _lock_file():
+    # Derived from config at call time so tests that repoint PREDICTIONS_FILE
+    # automatically isolate the lock too.
+    return config.PREDICTIONS_FILE.with_name(".predictions.lock")
+
+
+@contextmanager
+def _book_lock():
+    """Advisory cross-process lock around every load→mutate→save of the book."""
+    lock = _lock_file()
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.monotonic() + _LOCK_TIMEOUT
+    while True:
+        try:
+            fd = os.open(str(lock), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            try:
+                os.write(fd, f"pid={os.getpid()} at={_now()}\n".encode("utf-8"))
+            finally:
+                os.close(fd)
+            break
+        except FileExistsError:
+            try:
+                age = time.time() - lock.stat().st_mtime
+            except OSError:            # holder released between open() and stat()
+                continue
+            if age > _LOCK_STALE_AFTER:
+                # A crash / kill mid-write strands the file forever; break it.
+                try:
+                    lock.unlink()
+                except OSError:
+                    pass
+                continue
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    f"could not acquire {lock} within {_LOCK_TIMEOUT:.1f}s — another "
+                    f"process (apex_daily auto-resolve, or a second session?) is "
+                    f"writing the book. Retry when it finishes; if no writer is "
+                    f"alive the lock will be broken automatically after "
+                    f"{_LOCK_STALE_AFTER:.0f}s, or delete the file by hand.")
+            time.sleep(_LOCK_POLL)
+    try:
+        yield
+    finally:
+        try:
+            lock.unlink()
+        except OSError:
+            pass
 
 
 # --------------------------------------------------------------------------- #
@@ -226,40 +292,43 @@ def record_prediction(entry: dict[str, Any]) -> dict[str, Any]:
       prior_prob   — the base-rate prior before evidence (optional but encouraged)
       evidence     — the evidence ledger (REQUIRED for POSITIONs); see below
     """
-    preds = load_predictions()
     entry = dict(entry)
     _validate_entry(entry, "record")
+    # The backfill may consult Gamma on a cache miss — do it BEFORE taking the lock
+    # so a slow network call never blocks the other writers.
     _backfill_from_cache(entry)
-    # Dedup guard: the append-only store has no dedup by market_id. Re-recording the
-    # same OPEN market is almost always a re-analysis, not a second independent bet; a
-    # fresh row double-counts conviction in `portfolio` and double-scores calibration.
-    # WARN and tag `supersedes` — never raise (a library raise would break skill/script
-    # callers). Pass allow_duplicate=True for a genuinely distinct second position.
     mid = entry.get("market_id")
     allow_dup = entry.pop("allow_duplicate", False)
-    if mid is not None and not allow_dup:
-        dupes = [p for p in preds
-                 if str(p.get("market_id")) == str(mid) and p.get("status") == "open"]
-        if dupes:
-            entry["supersedes"] = [p["pred_id"] for p in dupes]
-            warnings.warn(
-                f"market_id {mid} already has OPEN prediction(s) {entry['supersedes']}; "
-                f"appending a NEW row double-counts it in portfolio/calibration. Prefer an "
-                f"in-place edit of memory/predictions.json or "
-                f"add_evidence('{dupes[-1]['pred_id']}', [...]). "
-                f"Pass allow_duplicate=True only for a genuinely separate position.",
-                stacklevel=2)
-    entry.setdefault("pred_id", _next_pred_id(preds))
-    entry.setdefault("created_at", _now())
-    entry.setdefault("status", "open")        # open | resolved
-    entry.setdefault("outcome", None)         # 1=YES, 0=NO once resolved
-    entry.setdefault("brier", None)
-    entry.setdefault("prior_prob", None)      # base rate before evidence
-    entry["evidence"] = _normalise_evidence(entry.get("evidence", []))
-    if entry.get("market_prob") is not None and entry.get("model_prob") is not None:
-        entry["edge"] = round(entry["model_prob"] - entry["market_prob"], 4)
-    preds.append(entry)
-    save_predictions(preds)
+    with _book_lock():
+        preds = load_predictions()
+        # Dedup guard: the append-only store has no dedup by market_id. Re-recording the
+        # same OPEN market is almost always a re-analysis, not a second independent bet; a
+        # fresh row double-counts conviction in `portfolio` and double-scores calibration.
+        # WARN and tag `supersedes` — never raise (a library raise would break skill/script
+        # callers). Pass allow_duplicate=True for a genuinely distinct second position.
+        if mid is not None and not allow_dup:
+            dupes = [p for p in preds
+                     if str(p.get("market_id")) == str(mid) and p.get("status") == "open"]
+            if dupes:
+                entry["supersedes"] = [p["pred_id"] for p in dupes]
+                warnings.warn(
+                    f"market_id {mid} already has OPEN prediction(s) {entry['supersedes']}; "
+                    f"appending a NEW row double-counts it in portfolio/calibration. Prefer an "
+                    f"in-place edit of memory/predictions.json or "
+                    f"add_evidence('{dupes[-1]['pred_id']}', [...]). "
+                    f"Pass allow_duplicate=True only for a genuinely separate position.",
+                    stacklevel=2)
+        entry.setdefault("pred_id", _next_pred_id(preds))
+        entry.setdefault("created_at", _now())
+        entry.setdefault("status", "open")        # open | resolved
+        entry.setdefault("outcome", None)         # 1=YES, 0=NO once resolved
+        entry.setdefault("brier", None)
+        entry.setdefault("prior_prob", None)      # base rate before evidence
+        entry["evidence"] = _normalise_evidence(entry.get("evidence", []))
+        if entry.get("market_prob") is not None and entry.get("model_prob") is not None:
+            entry["edge"] = round(entry["model_prob"] - entry["market_prob"], 4)
+        preds.append(entry)
+        save_predictions(preds)
     return entry
 
 
@@ -328,16 +397,17 @@ def reconcile_ledger(entry: dict[str, Any],
 
 def add_evidence(pred_id: str, entries: list[dict[str, Any]]) -> dict[str, Any] | None:
     """Append more evidence to an existing prediction (e.g. a later research pass)."""
-    preds = load_predictions()
-    target = None
-    for p in preds:
-        if p.get("pred_id") == pred_id:
-            p.setdefault("evidence", [])
-            p["evidence"].extend(_normalise_evidence(entries))
-            target = p
-            break
-    if target is not None:
-        save_predictions(preds)
+    with _book_lock():
+        preds = load_predictions()
+        target = None
+        for p in preds:
+            if p.get("pred_id") == pred_id:
+                p.setdefault("evidence", [])
+                p["evidence"].extend(_normalise_evidence(entries))
+                target = p
+                break
+        if target is not None:
+            save_predictions(preds)
     return target
 
 
@@ -389,26 +459,27 @@ def resolve_prediction(pred_id: str, outcome: int) -> dict[str, Any] | None:
     """
     from tools.scoring import brier_score
 
-    preds = load_predictions()
-    target = None
-    for p in preds:
-        if p.get("pred_id") == pred_id:
-            target = p
-            break
-    if target is None:
-        return None
-    if target.get("status") == "resolved":
-        raise ValueError(
-            f"{pred_id} is already resolved (outcome={target.get('outcome')}, "
-            f"brier={target.get('brier')}); the book is append-only — refusing to "
-            f"re-resolve. If the first resolution was genuinely wrong, hand-edit that "
-            f"row in memory/predictions.json, then re-run `status`.")
-    target["status"] = "resolved"
-    target["outcome"] = int(outcome)
-    target["resolved_at"] = _now()
-    if target.get("model_prob") is not None:
-        target["brier"] = round(brier_score(target["model_prob"], outcome), 4)
-    save_predictions(preds)
+    with _book_lock():
+        preds = load_predictions()
+        target = None
+        for p in preds:
+            if p.get("pred_id") == pred_id:
+                target = p
+                break
+        if target is None:
+            return None
+        if target.get("status") == "resolved":
+            raise ValueError(
+                f"{pred_id} is already resolved (outcome={target.get('outcome')}, "
+                f"brier={target.get('brier')}); the book is append-only — refusing to "
+                f"re-resolve. If the first resolution was genuinely wrong, hand-edit that "
+                f"row in memory/predictions.json, then re-run `status`.")
+        target["status"] = "resolved"
+        target["outcome"] = int(outcome)
+        target["resolved_at"] = _now()
+        if target.get("model_prob") is not None:
+            target["brier"] = round(brier_score(target["model_prob"], outcome), 4)
+        save_predictions(preds)
     return target
 
 
@@ -442,25 +513,26 @@ def revise(pred_id: str, patch: dict[str, Any]) -> dict[str, Any] | None:
             f"(model_prob, confidence, decision, direction, conviction, rationale, "
             f"key_uncertainty, half_life, prior_prob, market_prob, evidence) may be revised.")
     _validate_entry(patch, "revise")
-    preds = load_predictions()
-    target = None
-    for p in preds:
-        if p.get("pred_id") == pred_id:
-            target = p
-            break
-    if target is None:
-        return None
-    if target.get("status") == "resolved":
-        raise ValueError(
-            f"{pred_id} is resolved; the book is append-only — a settled row cannot "
-            f"be revised.")
-    patch = dict(patch)
-    if "evidence" in patch:
-        patch["evidence"] = _normalise_evidence(patch["evidence"])
-    target.update(patch)
-    if target.get("market_prob") is not None and target.get("model_prob") is not None:
-        target["edge"] = round(target["model_prob"] - target["market_prob"], 4)
-    save_predictions(preds)
+    with _book_lock():
+        preds = load_predictions()
+        target = None
+        for p in preds:
+            if p.get("pred_id") == pred_id:
+                target = p
+                break
+        if target is None:
+            return None
+        if target.get("status") == "resolved":
+            raise ValueError(
+                f"{pred_id} is resolved; the book is append-only — a settled row cannot "
+                f"be revised.")
+        patch = dict(patch)
+        if "evidence" in patch:
+            patch["evidence"] = _normalise_evidence(patch["evidence"])
+        target.update(patch)
+        if target.get("market_prob") is not None and target.get("model_prob") is not None:
+            target["edge"] = round(target["model_prob"] - target["market_prob"], 4)
+        save_predictions(preds)
     return target
 
 
@@ -529,9 +601,12 @@ def recompute_calibration() -> dict[str, Any]:
     # resolved_predictions() drops superseded re-analyses so a revisited bet isn't
     # double-scored (which would bias calibration toward oft-revisited high-conviction
     # markets) — the same exclusion portfolio applies to exposure.
-    report = calibration_report(resolved_predictions())
-    report["updated_at"] = _now()
-    _save(config.CALIBRATION_FILE, report)
+    # Locked: reads the book and writes the derived calibration file, and must not
+    # interleave with a concurrent resolve/record.
+    with _book_lock():
+        report = calibration_report(resolved_predictions())
+        report["updated_at"] = _now()
+        _save(config.CALIBRATION_FILE, report)
     return report
 
 
