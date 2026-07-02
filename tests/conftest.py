@@ -49,6 +49,16 @@ def isolated_book(tmp_path, monkeypatch):
     yield tmp_path
 
 
+@pytest.fixture(autouse=True)
+def offline_gamma(monkeypatch):
+    """record_prediction's cache-miss backfill consults Gamma (P1-4); the suite must
+    never do real HTTP. Default every test to 'market not found'; tests that
+    exercise the fallback re-patch get_market_by_id themselves."""
+    from tools import polymarket
+
+    monkeypatch.setattr(polymarket, "get_market_by_id", lambda mid: None)
+
+
 def make_pred(**over):
     """A minimal valid prediction-record kwargs dict, overridable per test."""
     base = {

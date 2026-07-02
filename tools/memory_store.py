@@ -148,25 +148,52 @@ def _validate_entry(entry: dict[str, Any], context: str) -> None:
         raise ValueError(f"{context}: conviction must be an int in 1..5, got {v!r}")
 
 
+_BACKFILL_FIELDS = ("question", "end_date", "url", "liquidity", "category")
+
+
+def _fill_market_fields(entry: dict[str, Any], m: dict[str, Any],
+                        category: Any) -> None:
+    """Copy the market fields into `entry` without overwriting caller-supplied ones."""
+    entry.setdefault("question", m.get("question"))
+    if entry.get("market_prob") is None:
+        entry["market_prob"] = m.get("market_prob")
+    entry.setdefault("end_date", m.get("end_date"))
+    entry.setdefault("url", m.get("url"))
+    entry.setdefault("liquidity", m.get("liquidity"))
+    entry.setdefault("category", category)
+
+
 def _backfill_from_cache(entry: dict[str, Any]) -> None:
     """Fill market fields from the cached shortlist when only an id was given, so
     EVERY write path (CLI, skill, direct script) yields a complete row. The portfolio
     factor classifier keys off the question text — a blank question silently mis-buckets
-    the position (e.g. a Fed market filed under 'other' instead of 'us-rates')."""
+    the position (e.g. a Fed market filed under 'other' instead of 'us-rates').
+
+    Cache miss (a market recorded off-briefing, absent from the latest scan):
+    best-effort fallback to a live Gamma lookup, categorised the same way the
+    scanner would. Strictly enrichment — any failure (offline, API change, junk
+    payload) degrades silently to the old blank-fields behaviour, never raises."""
     mid = entry.get("market_id")
     if not mid:
         return
     cache = _load(config.MARKETS_CACHE, {"shortlist": []})
     for m in cache.get("shortlist", []):
         if m.get("id") == str(mid):
-            entry.setdefault("question", m.get("question"))
-            if entry.get("market_prob") is None:
-                entry["market_prob"] = m.get("market_prob")
-            entry.setdefault("end_date", m.get("end_date"))
-            entry.setdefault("url", m.get("url"))
-            entry.setdefault("liquidity", m.get("liquidity"))
-            entry.setdefault("category", m.get("category"))
-            break
+            _fill_market_fields(entry, m, m.get("category"))
+            return
+    # Not in the cache — skip the network when the caller already supplied the row.
+    if (entry.get("market_prob") is not None
+            and all(entry.get(f) is not None for f in _BACKFILL_FIELDS)):
+        return
+    try:
+        from tools import polymarket
+
+        raw = polymarket.get_market_by_id(str(mid))
+        m = polymarket._normalise(raw) if raw else None
+        if m:
+            _fill_market_fields(entry, m, polymarket.categorize(m))
+    except Exception:  # noqa: BLE001 — enrichment only; a record must never fail on it
+        return
 
 
 def _next_pred_id(preds: list[dict[str, Any]]) -> str:
