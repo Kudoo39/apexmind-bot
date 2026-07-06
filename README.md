@@ -137,10 +137,10 @@ producing a decision memo. Add a focus, e.g. `/apexmind focus on macro/rates mar
 | Command | Purpose |
 |---|---|
 | `python main_agent.py scan` | scan Polymarket (+ price history), build the briefing |
-| `python main_agent.py record '<json>'` | log a prediction (use `--file pred.json` on PowerShell) |
+| `python main_agent.py record '<json>'` | log a prediction (use `--file pred.json` on PowerShell); impossible values (a probability outside [0,1], a bad decision/direction/conviction) are rejected with a clear error |
 | `python main_agent.py notify [--file memo.json]` | push the Decision Memo to Telegram (defaults to open POSITIONs) |
 | `python main_agent.py notify-test` | send a Telegram test message |
-| `python main_agent.py auto-resolve [--dry-run]` | settle predictions from Polymarket + build reflection packet |
+| `python main_agent.py auto-resolve [--dry-run]` | settle predictions from Polymarket + build reflection packet; closed markets whose UMA status is still pending/disputed are held back as ambiguous |
 | `python main_agent.py schema-check` | probe Polymarket endpoints for upstream schema drift |
 | `python main_agent.py backtest --days 90 [--strategy revert] [--by-category]` | replay resolved markets; bootstrap calibration & test edge |
 | `python main_agent.py status` | track record, Brier, calibration, open positions |
@@ -149,6 +149,11 @@ producing a decision memo. Add a focus, e.g. `/apexmind focus on macro/rates mar
 | `python main_agent.py reflect` | build the reflection packet |
 | `python main_agent.py lesson "<text>"` | append a lesson |
 | `python run_analysis.py [--auto]` | scheduled run |
+
+Writes to the book are serialised across processes via `memory/.predictions.lock`:
+if the daily task is mid-`auto-resolve`, a concurrent `record`/`revise` waits up to
+~10 s and then exits with a clear error instead of corrupting
+`memory/predictions.json` (a stale lock from a crashed run is broken automatically).
 
 ### The `notify.json` payload
 All fields optional — with none, ApexMind notifies your current open POSITIONs.
