@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-06-25T20:44:00.688067+00:00",
+  "updated_at": "2026-07-01T07:38:26.157914+00:00",
   "predictions": [
     {
       "market_id": "665374",
-      "model_prob": 0.09,
+      "model_prob": 0.12,
       "prior_prob": 0.13,
       "confidence": 0.5,
       "decision": "PASS",
       "direction": "NO",
       "conviction": 1,
-      "rationale": "Resolution requires the US to commence a military OFFENSIVE to establish CONTROL over Iranian territory by Dec 31 2026 — a ground/territorial bar; the Feb air campaign and naval blockade do NOT qualify. A new 60-day US-Iran ceasefire MOU was signed June 17 with active nuclear talks, and Trump explicitly said he does not intend a ground invasion. The escalation ladder from today to a US ground offensive (ceasefire collapse -> renewed air war -> invasion decision -> mobilization -> ground operation) is long for a 6-month clock. I fade the crowd's 13.5% modestly toward ~0.09, but the conflict is live and the June 7-8 ceasefire already faltered once, so the fade is small and two-sided. Edge 0.045 < MIN_EDGE 0.08 -> PASS.",
-      "key_uncertainty": "Whether the 60-day ceasefire collapses and a limited territorial seizure (e.g. Kharg Island, which Trump mused about) is launched before Dec 31 — that would satisfy 'control over any portion'.",
+      "rationale": "(RE-RATE 06-28 PM) Active-war regime: June 27-28 the ceasefire broke down -- US struck 10 Iranian targets near Hormuz, Iran hit US bases in Bahrain/Kuwait, Iran closed the Strait. Hazard is up, so I lift model 0.09->0.12 (anti-permabear-blindness, 2.6). BUT the resolving event is a GROUND offensive to establish CONTROL of Iranian territory; an air/naval campaign + repeated US no-occupation-intent signals do NOT meet that bar, and 'control' is a high bar even for a limited seizure. The market itself moved only ~+1pt (0.135->0.145), i.e. the crowd also reads this as a strikes-war, not an invasion. model 0.12 vs 0.145 -> edge -0.025 < MIN_EDGE 0.08 -> PASS (no fear-spike to fade). Re-derived for the new regime; supersedes the June-25 ceasefire-era shades.",
+      "key_uncertainty": "Whether the air/naval war ladders into a GROUND offensive (or a limited territorial seizure, e.g. Kharg Island, which would satisfy 'control over any portion') before Dec 31 -- vs. the US keeping it to strikes/blockade with no occupation intent. Fast-moving; re-derive next session.",
       "half_life": "21d",
       "evidence": [
         {
@@ -66,10 +66,19 @@
           "likelihood_ratio": 1.1,
           "direction": "YES",
           "fetched_at": "2026-06-25T20:20:03.879795+00:00"
+        },
+        {
+          "query": "US Iran war escalation June 27 2026 US strikes 10 targets Iran attacks bases Hormuz closed",
+          "source_url": "https://www.cnn.com/2026/06/27/world/live-news/iran-war-strikes-trump",
+          "source_tier": "expert",
+          "key_finding": "June 27-28: US struck 10 Iranian military targets near Hormuz; Iran retaliated against US facilities in Bahrain/Kuwait; Iran closed the Strait. Raises the conflict hazard -- but it is an air/naval war; the resolving event (a GROUND offensive to establish territorial control) is not met and the US signals no occupation intent. Still a tail.",
+          "likelihood_ratio": 1.4,
+          "direction": "YES",
+          "fetched_at": "2026-06-28T14:57:00.532393+00:00"
         }
       ],
       "question": "Will the U.S. invade Iran before 2027?",
-      "market_prob": 0.135,
+      "market_prob": 0.145,
       "end_date": "2026-12-31T00:00:00Z",
       "url": "https://polymarket.com/event/will-the-us-invade-iran-before-2027",
       "liquidity": 316571.0276,
@@ -79,7 +88,7 @@
       "status": "open",
       "outcome": null,
       "brier": null,
-      "edge": -0.045
+      "edge": -0.025
     },
     {
       "market_id": "1971905",
@@ -304,7 +313,7 @@
     },
     {
       "market_id": "2633430",
-      "model_prob": 0.15,
+      "model_prob": 0.13,
       "prior_prob": 0.2,
       "confidence": 0.6,
       "decision": "POSITION",
@@ -349,10 +358,73 @@
           "likelihood_ratio": 1.5,
           "direction": "YES",
           "fetched_at": "2026-06-25T20:43:59.740814+00:00"
+        },
+        {
+          "query": "US Iran finalize war ending deal disputes June 23 2026",
+          "source_url": "https://www.npr.org/2026/06/23/nx-s1-5867322/us-iran-finalize-war-ending-deal",
+          "source_tier": "expert",
+          "key_finding": "June 23 talks: 'robust discussions' but core disputes unresolved (enrichment level, HEU stockpile, sanctions specifics); Iran publicly DENIED agreeing to the IAEA inspections Vance claimed -- still far from a FINAL signed instrument",
+          "likelihood_ratio": 0.85,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.063307+00:00"
+        },
+        {
+          "query": "US Iran peace deal nuclear access IAEA June 26 2026",
+          "source_url": "https://www.cnbc.com/2026/06/26/us-iran-peace-deal-nuclear-access.html",
+          "source_tier": "expert",
+          "key_finding": "June 26: IAEA says the interim deal grants inspector access, but US/Iran still publicly contradict each other and HEU/sanctions remain open -- momentum continues yet a QUALIFYING FINAL instrument by Aug 31 stays unlikely (confirms thesis)",
+          "likelihood_ratio": 0.95,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.063314+00:00"
+        },
+        {
+          "query": "US Iran ceasefire violation Hormuz drone US strikes June 26 2026",
+          "source_url": "https://www.aljazeera.com/news/2026/6/26/us-strikes-iran-in-response-to-drone-strike-on-commercial-ship",
+          "source_tier": "expert",
+          "key_finding": "June 26-27: Iran drone hit a cargo ship in Hormuz (Trump declared a ceasefire violation) and the US launched retaliatory airstrikes on Iran. Active two-way strikes mid-negotiation make a QUALIFYING FINAL signed nuclear instrument by Aug 31 even less likely -- confirms NO.",
+          "likelihood_ratio": 0.85,
+          "direction": "NO",
+          "fetched_at": "2026-06-28T07:53:53.272828+00:00"
+        },
+        {
+          "query": "US Iran complete halt talks Hormuz closed June 27 28 2026",
+          "source_url": "https://www.cbsnews.com/live-updates/us-iran-war-israel-hezbollah-strait-of-hormuz-peace-deal-talks/",
+          "source_tier": "expert",
+          "key_finding": "June 27-28: 2nd round of US strikes (10 targets), Iran attacked US bases in Bahrain/Kuwait, Iran closed Hormuz and threatened a 'complete halt' to talks. A QUALIFYING FINAL comprehensive nuclear instrument by Aug 31 is even less likely amid active strikes (the window is extendable; a war-ending bargain is a tail) -- reinforces NO.",
+          "likelihood_ratio": 0.8,
+          "direction": "NO",
+          "fetched_at": "2026-06-28T14:57:00.534112+00:00"
+        },
+        {
+          "query": "US Iran strikes missiles Kuwait Bahrain June 27 28 2026 ceasefire violation",
+          "source_url": "https://www.pbs.org/newshour/world/u-s-and-iranian-negotiators-reach-tentative-deal-to-extend-ceasefire-and-start-new-nuclear-talks",
+          "source_tier": "expert",
+          "key_finding": "Jun 24 Trump ceasefire collapsed within days: Jun 27-28 US struck 5 Iranian coastal sites, Iran fired ballistic missiles/drones at US bases in Kuwait (Ali Al Salem) & Bahrain (5th Fleet HQ); US/Iran still publicly dispute IAEA inspection access. A QUALIFYING FINAL signed nuclear instrument by Aug 31 amid active two-way strikes stays unlikely -- confirms NO.",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-06-29T07:01:00.349850+00:00"
+        },
+        {
+          "query": "US Iran nuclear talks enrichment dispute Khamenei zero-enrichment ceasefire strain June 30 2026",
+          "source_url": "https://www.aljazeera.com/news/2026/6/27/iran-and-us-trade-blame-for-attacks-threatening-fragile-ceasefire",
+          "source_tier": "expert",
+          "key_finding": "Jun 30 re-check: core enrichment dispute remains fundamental and unresolved — Khamenei publicly rejects halting enrichment while Trump insists on ZERO enrichment; ceasefire strained by continued two-way strikes and Iran's threat to halt talks. A QUALIFYING FINAL comprehensive instrument (enrichment + HEU stockpile) by Aug 31 stays unlikely — confirms NO.",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-06-30T07:41:20.354294+00:00"
+        },
+        {
+          "query": "US Iran nuclear talks July 1 2026 enrichment inspections dispute Aug 31 deadline",
+          "source_url": "https://www.npr.org/2026/06/23/nx-s1-5867322/us-iran-finalize-war-ending-deal",
+          "source_tier": "expert",
+          "key_finding": "Jul-1 re-check: the Jun-17 Islamabad Memorandum holds a fragile ceasefire under a 60-day EXTENDABLE roadmap, but core enrichment / HEU-stockpile / IAEA-inspection disputes remain unresolved and the sides still publicly contradict each other. A QUALIFYING FINAL signed instrument by Aug 31 stays unlikely; market drifted 0.245->0.235 toward the thesis. Confirms NO.",
+          "likelihood_ratio": 0.95,
+          "direction": "NO",
+          "fetched_at": "2026-07-01T07:38:26.134023+00:00"
         }
       ],
       "question": "US-Iran Final Nuclear Deal by August 31, 2026?",
-      "market_prob": 0.255,
+      "market_prob": 0.245,
       "end_date": "2026-08-31T23:59:00Z",
       "url": "https://polymarket.com/event/us-iran-final-nuclear-deal-by-august-31-2026-20260621201255154",
       "liquidity": 531634.8352,
@@ -362,50 +434,32 @@
       "status": "open",
       "outcome": null,
       "brier": null,
-      "edge": -0.105
+      "edge": -0.115
     },
     {
       "market_id": "1654958",
-      "model_prob": 0.8,
-      "prior_prob": 0.8,
-      "confidence": 0.45,
+      "model_prob": 0.71,
+      "prior_prob": 0.69,
+      "confidence": 0.57,
       "decision": "PASS",
-      "direction": "YES",
+      "direction": "NO",
       "conviction": 1,
-      "rationale": "§2.5 — the curve is the prior; do not manufacture edge from stale data. An apparent edge (Polymarket 0.795 vs CME FedWatch ~88.8% no-change) did NOT survive verification: that FedWatch read was June 13, BEFORE the June 17 hold, and ambiguous as to which meeting. Fresh reads conflict — Polymarket itself shows ~76% no-change with ~24% HIKE risk priced (a live oil/inflation catalyst from the Mideast disruption), and an investing.com curve read came back internally inconsistent (showed a cut from a range the Fed already left). No clean current fed-funds-futures number confirms divergence, so model ~= curve ~= market -> edge ~0 -> PASS. Confidence lowered for the data gap.",
-      "key_uncertainty": "The precise current fed-funds-futures no-change probability for the July 29 meeting (a clean CME FedWatch read), and the size of the oil-driven hike risk the market is pricing.",
-      "half_life": "7d",
+      "rationale": "REVISED from yesterday's PASS-YES 0.80. The clean June-27 FedWatch read shows July 29 at 69% hold, so Polymarket's 0.805 no-change is ~11pts too high (it under-prices the ~31% curve hike risk). Model 0.71 -> edge -0.095, which clears MIN_EDGE. BUT this July-meeting hike bet is economically identical to #15 (no-change == NOT a July hike), and #15 is far more liquid (spread 0.001 vs 0.010). I express the single-meeting July leg via #15 (POSITION YES) and PASS #11 to avoid double-counting the same Fed factor. Recorded as PASS for portfolio discipline, not for lack of edge.",
+      "key_uncertainty": "Same as #15: whether the first 2026 hike lands specifically at the July 29 meeting vs later.",
+      "half_life": "14d",
       "evidence": [
         {
-          "query": "CME FedWatch July 2026 no change probability",
+          "query": "CME FedWatch July 29 2026 no change probability",
           "source_url": "https://growbeansprout.com/tools/fedwatch",
           "source_tier": "market",
-          "key_finding": "CME FedWatch ~88.8% no-change as of June 13 — but pre-June-17-hold and ambiguous on the target meeting; too stale to act on",
-          "likelihood_ratio": 1.0,
-          "direction": "YES",
-          "fetched_at": "2026-06-25T20:44:00.259286+00:00"
-        },
-        {
-          "query": "FOMC July 29 2026 odds post June hold",
-          "source_url": "https://www.investing.com/central-banks/fed-rate-monitor",
-          "source_tier": "market",
-          "key_finding": "Fresh curve reads conflict and one was internally inconsistent (garbled); Polymarket's own dashboard ~76% no-change with ~24% hike risk — no confirmed sharp-curve divergence from the price",
+          "key_finding": "CME FedWatch June 27: July 29 = 69% hold / ~31% hike -- Polymarket no-change at 0.805 is ~11pts rich vs the curve",
           "likelihood_ratio": 1.0,
           "direction": "NO",
-          "fetched_at": "2026-06-25T20:44:00.259291+00:00"
-        },
-        {
-          "query": "June 17 2026 FOMC decision hold wait and see",
-          "source_url": "https://commonslibrary.parliament.uk/research-briefings/cbp-10637/",
-          "source_tier": "expert",
-          "key_finding": "June 17 FOMC held 12-0 at 3.50-3.75%, wait-and-see — supports a no-change baseline, but Mideast oil/inflation is a genuine hike catalyst that justifies the priced change-risk",
-          "likelihood_ratio": 1.0,
-          "direction": "YES",
-          "fetched_at": "2026-06-25T20:44:00.259294+00:00"
+          "fetched_at": "2026-06-27T07:33:18.050325+00:00"
         }
       ],
       "question": "Will there be no change in Fed interest rates after the July 2026 meeting?",
-      "market_prob": 0.795,
+      "market_prob": 0.805,
       "end_date": "2026-07-29T00:00:00Z",
       "url": "https://polymarket.com/event/will-there-be-no-change-in-fed-interest-rates-after-the-july-2026-meeting",
       "liquidity": 554147.4195,
@@ -415,7 +469,7 @@
       "status": "open",
       "outcome": null,
       "brier": null,
-      "edge": 0.005
+      "edge": -0.095
     },
     {
       "market_id": "562802",
@@ -451,6 +505,872 @@
       "outcome": null,
       "brier": null,
       "edge": -0.005
+    },
+    {
+      "market_id": "567688",
+      "model_prob": 0.3,
+      "prior_prob": 0.45,
+      "confidence": 0.6,
+      "decision": "POSITION",
+      "direction": "NO",
+      "conviction": 3,
+      "rationale": "Resolution-timing edge (§2.4/§2.6). The crowd (0.475) prices 'Netanyahu is politically doomed' — which is true: the Knesset voted 110-0 to dissolve after UTJ/Shas bolted over the draft-exemption law, his right-religious bloc is stuck at 51-52 of the 61 needed, and Bennett is the clear opposition favorite. But the question is whether he CEASES to be PM by Dec 31 2026, and Israeli mechanics block that: the PM stays CARETAKER until a new government is sworn in. The vote is 'no later than Oct 27' (an early Aug-Sept window is floated but unconfirmed), and government formation runs 42 days minimum but historically ~2 months (2022: Nov 1 election -> govt sworn in Dec 29). So even a Netanyahu LOSS in late October most likely yields a replacement only in Jan-Feb 2027 — he is still PM on Dec 31. Scenario tree: P(loses ~0.68) x P(replaced/resignation announced before Dec 31 ~0.42 blended over the date distribution) + small tail (plea/health) ~ 0.30. Edge -0.175 NO. Even the bull case (early-Sept vote + loss + fast anti-Bibi coalition) only reaches ~0.45 ≈ market, so the market is pricing the best case as the base case.",
+      "key_uncertainty": "The exact election date — an early (Aug-Sept) vote materially raises P(a new govt is sworn in before Dec 31); a late-October vote almost mechanically pushes the replacement into 2027.",
+      "half_life": "21d",
+      "evidence": [
+        {
+          "query": "Israel 2026 election polls Netanyahu bloc seats Bennett",
+          "source_url": "https://www.opinionsandratings.com/israel-polls/general-stories/israel-election-opinion-polls",
+          "source_tier": "expert",
+          "key_finding": "Netanyahu's right-wing/religious bloc stuck at 51-52 seats, short of the 61 majority; Bennett is the clear opposition favorite — he most likely loses (necessary precondition for YES, but already broadly known)",
+          "likelihood_ratio": 1.1,
+          "direction": "YES",
+          "fetched_at": "2026-06-26T07:40:46.275987+00:00"
+        },
+        {
+          "query": "2026 Israeli legislative election scheduled date Knesset dissolution",
+          "source_url": "https://en.wikipedia.org/wiki/2026_Israeli_legislative_election",
+          "source_tier": "expert",
+          "key_finding": "Election scheduled no later than 27 October 2026; an early-election window of Aug 11-Sept 1 has been floated but the dissolution bill still needed further readings — a late vote leaves little runway to replace him before Dec 31",
+          "likelihood_ratio": 0.95,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:46.275993+00:00"
+        },
+        {
+          "query": "Israel government formation time caretaker PM 2022 precedent",
+          "source_url": "https://en.wikipedia.org/wiki/Thirty-seventh_government_of_Israel",
+          "source_tier": "primary",
+          "key_finding": "Coalition formation has a 42-day legal mandate but took ~2 months in practice (Nov 1 2022 election -> 37th government sworn in Dec 29 2022); Netanyahu remains caretaker PM until a successor government is sworn in",
+          "likelihood_ratio": 0.45,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:46.275996+00:00"
+        },
+        {
+          "query": "Netanyahu out by 2027 Polymarket resolution criteria",
+          "source_url": "https://polymarket.com/event/netanyahu-out-before-2027-684-719-226-657",
+          "source_tier": "primary",
+          "key_finding": "Resolves YES if Netanyahu ceases to be PM for any period before Dec 31 2026, OR if a resignation/removal is ANNOUNCED before then (even if effective later) — the announcement clause is a YES escape valve, but Netanyahu is famous for not conceding as caretaker",
+          "likelihood_ratio": 1.05,
+          "direction": "YES",
+          "fetched_at": "2026-06-26T07:40:46.275998+00:00"
+        },
+        {
+          "query": "Israel election date Knesset dissolution readings September October 2026",
+          "source_url": "https://www.timesofisrael.com/mks-advance-bill-to-dissolve-knesset-and-potentially-move-up-elections-to-september/",
+          "source_tier": "expert",
+          "key_finding": "Dissolution bill passed only its FIRST reading (106 votes); no date set for final readings. Netanyahu is pushing an OCTOBER date and privately warns a September vote would endanger his bloc; Shas/UTJ prefer September. An October vote makes a successor govt sworn in before Dec 31 near-mechanically impossible (~2-month formation lag).",
+          "likelihood_ratio": 0.85,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T18:20:43.716520+00:00"
+        },
+        {
+          "query": "Israel Knesset dissolution bill first reading election date unset June 2026",
+          "source_url": "https://www.timesofisrael.com/mks-advance-bill-to-dissolve-knesset-and-potentially-move-up-elections-to-september/",
+          "source_tier": "expert",
+          "key_finding": "As of late June the dissolution bill has passed only its FIRST reading (106-0, June 2); NO date set -- range Sep 8 to Oct 20, inserted only before the final two readings. Netanyahu pushes October (Shas/UTJ want September). A late-Oct vote makes a successor govt sworn in before Dec 31 near-mechanically impossible (~2-month formation lag) -- confirms NO",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.064732+00:00"
+        },
+        {
+          "query": "Israel 2026 election date set dissolution bill final reading June 28",
+          "source_url": "https://www.timesofisrael.com/mks-unanimously-advance-bill-to-dissolve-knesset-and-trigger-elections-no-date-set/",
+          "source_tier": "expert",
+          "key_finding": "As of June 28 STILL no election date set: dissolution bill advanced without a date (range Sep 8-Oct 20), Netanyahu pushing October, Shas/UTJ wanting September. A late date makes a successor govt sworn in before Dec 31 near-mechanically impossible -- confirms NO.",
+          "likelihood_ratio": 0.95,
+          "direction": "NO",
+          "fetched_at": "2026-06-28T07:53:53.274542+00:00"
+        },
+        {
+          "query": "Israel 26th Knesset election date statutory October 27 2026 dissolution bill final reading",
+          "source_url": "https://www.gov.il/en/pages/knesset26-date",
+          "source_tier": "primary",
+          "key_finding": "As of Jun 29 the early-election dissolution bill STILL has not passed its final readings; statutory fallback date remains Oct 27 2026 (Central Elections Committee/gov.il), and the bill sets the vote >=3 months after final approval. Latest Haaretz poll: Likud GAINS a seat while opposition favorite Bennett declines. A late-Oct vote near-mechanically pushes any successor govt into 2027 (~2-month formation lag) -> Netanyahu stays caretaker PM through Dec 31. Confirms NO.",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-06-29T07:01:00.353056+00:00"
+        },
+        {
+          "query": "Israel Knesset dissolution bill no election date set second third reading June 30 2026",
+          "source_url": "https://www.timesofisrael.com/mks-unanimously-advance-bill-to-dissolve-knesset-and-trigger-elections-no-date-set/",
+          "source_tier": "expert",
+          "key_finding": "Jun 30 re-check: STILL no election date set — dissolution bill passed only first reading (106-0), needs 2nd & 3rd readings; window Sep 8-Oct 20, statutory fallback Oct 27, Netanyahu pushing October. A late vote near-mechanically pushes any successor government into 2027 (~2-month formation lag), so Netanyahu stays caretaker PM through Dec 31 — confirms NO.",
+          "likelihood_ratio": 0.95,
+          "direction": "NO",
+          "fetched_at": "2026-06-30T07:41:20.354312+00:00"
+        },
+        {
+          "query": "Israel Knesset dissolution bill election date July 2026 expected dissolve by July 17",
+          "source_url": "https://en.wikipedia.org/wiki/2026_Israeli_legislative_election",
+          "source_tier": "expert",
+          "key_finding": "Jul-1 re-check: election date STILL unset; dissolution bill passed only first reading (106-0); Knesset now expected to dissolve by ~July 17 with the date inserted before final readings; statutory fallback Oct 27. A Sept-Oct vote + ~2-month government-formation lag keeps Netanyahu caretaker PM through Dec 31. Market drifted 0.475->0.465 toward the thesis. Confirms NO.",
+          "likelihood_ratio": 0.95,
+          "direction": "NO",
+          "fetched_at": "2026-07-01T07:38:26.146456+00:00"
+        }
+      ],
+      "question": "Netanyahu out by end of 2026?",
+      "market_prob": 0.475,
+      "end_date": "2026-12-31T00:00:00Z",
+      "url": "https://polymarket.com/event/netanyahu-out-before-2027-684-719-226-657",
+      "liquidity": 81744.4717,
+      "category": "Politics",
+      "pred_id": "p00009",
+      "created_at": "2026-06-26T07:40:46.275967+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.175
+    },
+    {
+      "market_id": "908713",
+      "model_prob": 0.68,
+      "prior_prob": 0.72,
+      "confidence": 0.57,
+      "decision": "POSITION",
+      "direction": "YES",
+      "conviction": 2,
+      "rationale": "(REVIEW 06-28) Stale-price edge, re-anchored. Clean June-28 FedWatch prices July 29 at ~31% hike; the sharp fed-funds-futures CUMULATIVE >=1 hike by Dec is ~0.66-0.75 (June SEP dot median rose to 3.8%, 9/19 officials project a hike), already embedding soft core CPI, a long-run-dovish Warsh, and the Iran-deal oil path -- so shading the curve further DOWN would double-count priced dovishness (a 2.5 failure mode). I set model ~= the reconciled curve (0.68), not below it; the edge vs Polymarket 0.53 is RETAIL LAG (stale-price), the only defensible deviation. Robust: needs only ONE hike across Jul/Sep/Oct/Dec, and the June 26-27 Hormuz RE-escalation (US strikes on Iran) cuts the main dovish NO-path. Trimmed conviction 3->2 and confidence 0.60->0.57 for the unresolved cumulative-read data gap; prior re-anchored 0.86->0.72. Edge +0.15 still clears MIN_EDGE.",
+      "key_uncertainty": "Cumulative-read DATA GAP: the only clean dated FedWatch read today is the July leg (31% hike); the year-CUMULATIVE >=1-hike-by-Dec read conflicts across sources (~two-thirds vs an earlier ~0.86) and could not be reconciled to one clean dated figure -- re-pull next session. Plus the two-way Hormuz/oil swing that could re-rate the curve itself.",
+      "half_life": "21d",
+      "evidence": [
+        {
+          "query": "CME FedWatch July 2026 no change probability hike odds 2026",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "CME FedWatch June 27 2026: July 29 = 69% hold / ~31% hike; cumulative >=1 hike by Dec ~86% -- the sharp curve and my prior",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.049939+00:00"
+        },
+        {
+          "query": "FOMC June 2026 dot plot median end-2026 rate projection hawkish",
+          "source_url": "https://fortune.com/2026/06/22/fed-rate-hikes-outlook-sticky-inflation-kevin-warsh-job-growth-oil-prices/",
+          "source_tier": "expert",
+          "key_finding": "June SEP median end-2026 dot rose to 3.8% from 3.4%, 9/18 officials project higher; BofA flipped to 3 hikes -- corroborates the curve (already priced)",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.049957+00:00"
+        },
+        {
+          "query": "May 2026 CPI core soft energy driven Hormuz",
+          "source_url": "https://www.cnbc.com/2026/06/10/cpi-inflation-report-may-2026.html",
+          "source_tier": "primary",
+          "key_finding": "May CPI +4.2% y/y headline but CORE just +0.2% m/m / 2.9% y/y; spike is energy (gasoline +40% y/y on Hormuz) the Fed typically looks through -- shades below the curve",
+          "likelihood_ratio": 0.65,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.049960+00:00"
+        },
+        {
+          "query": "US Iran deal Hormuz oil June 2026 de-escalation",
+          "source_url": "https://www.npr.org/2026/06/21/g-s1-129222/us-iran-deal-lebanon-israel-strait-hormuz-jd-vance",
+          "source_tier": "expert",
+          "key_finding": "US-Iran roadmap progressing toward reopening Hormuz; a deal would pull oil/headline inflation down and ease hike pressure -- the main NO path",
+          "likelihood_ratio": 0.72,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.049962+00:00"
+        },
+        {
+          "query": "Kevin Warsh Fed chair AI productivity disinflation lower rates",
+          "source_url": "https://fortune.com/2026/06/10/inflation-core-cpi-iran-war-kevin-warsh-fed-watch/",
+          "source_tier": "expert",
+          "key_finding": "Chair Warsh is long-run dovish (AI productivity disinflation) even while hawkish near-term -- caps how far/long the committee hikes",
+          "likelihood_ratio": 0.83,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.049965+00:00"
+        },
+        {
+          "query": "CME FedWatch July 29 2026 hold/hike + 2026 cumulative hike by December",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "June 28 clean dated read: July 29 = 69% hold / 31% hike (target 3.50-3.75%, held 4 mtgs). Year-CUMULATIVE >=1 hike by Dec did NOT resolve to one clean dated figure (aggregate ~two-thirds vs an earlier ~0.86) -> data gap; prior re-anchored to ~0.72, confidence haircut.",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-28T07:53:53.270901+00:00"
+        },
+        {
+          "query": "Iran drone attack Strait of Hormuz US retaliatory strikes June 26 2026",
+          "source_url": "https://www.aljazeera.com/news/2026/6/26/us-strikes-iran-in-response-to-drone-strike-on-commercial-ship",
+          "source_tier": "expert",
+          "key_finding": "June 26-27 RE-escalation: IRGC drone hit cargo ship Ever Lovely; US struck Iranian missile/drone/radar sites. Keeps oil/headline inflation elevated and makes the dovish 'Iran deal reopens Hormuz -> oil down -> Fed holds' NO-path less likely -> mild hawkish.",
+          "likelihood_ratio": 1.1,
+          "direction": "YES",
+          "fetched_at": "2026-06-28T07:53:53.270914+00:00"
+        },
+        {
+          "query": "May 2026 PCE inflation report June 27 core headline",
+          "source_url": "https://www.cnbc.com/2026/06/25/pce-inflation-report-may-2026-.html",
+          "source_tier": "primary",
+          "key_finding": "May PCE (released Jun 27): headline 4.1% y/y (highest since Apr-2023), CORE 3.4% y/y and +0.3% m/m -- firmer than the soft May CPI core (+0.2% m/m) I'd shaded on. The Fed's PREFERRED gauge re-accelerated, supporting >=1 hike by Dec and confirming the curve has NOT dovishly collapsed toward Polymarket's 0.53.",
+          "likelihood_ratio": 1.15,
+          "direction": "YES",
+          "fetched_at": "2026-06-29T07:01:00.343502+00:00"
+        },
+        {
+          "query": "CME FedWatch June 29 2026 July 29 hold probability cumulative December",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "Jun 29 clean dated read: July 29 = 70.1% hold (~30% hike), target 3.50-3.75% held 4 mtgs (July leg flat vs Jun 27). Year-CUMULATIVE >=1-hike-by-Dec STILL will not render on public trackers -> data gap persists a 3rd session; per 2.5 hold model 0.68, do not inflate.",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-29T07:01:00.343519+00:00"
+        },
+        {
+          "query": "CME FedWatch June 30 2026 July 29 hold probability cumulative December",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "Jun 30 re-check: FedWatch July 29 = 70.1% hold / ~30% hike (unchanged), target 3.50-3.75% held 4 mtgs; year-CUMULATIVE >=1-hike-by-Dec still will not render on public trackers (data gap persists). The curve has NOT dovishly collapsed toward Polymarket's 0.525 retail price; the June jobs report (Jul 2) is the next catalyst. Confirms hold-the-position (retail-lag) thesis; per 2.5 do not inflate above the curve.",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-30T07:41:20.354315+00:00"
+        },
+        {
+          "query": "CME FedWatch July 1 2026 curve vs Polymarket; June jobs report July 2 catalyst",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "Jul-1 re-check: FedWatch still ~70% hold / ~30% hike for Jul-29 (Jun-29 dated read; no fresh Jul-1 figure rendered -> data-quality caveat), while Polymarket Fed-hike-in-2026 rose 0.53->0.545 toward my 0.68 (retail lag closing). June SEP dot median 3.8% and re-accelerated May PCE (core 3.4% y/y) keep >=1 hike by Dec live. June jobs report (Jul 2, 8:30am ET; consensus ~110-115k, u-rate 4.3%, May a strong 172k) is the next catalyst. Thesis intact -> hold.",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-07-01T07:38:26.151098+00:00"
+        }
+      ],
+      "question": "Fed rate hike in 2026?",
+      "market_prob": 0.53,
+      "end_date": "2026-12-09T00:00:00Z",
+      "url": "https://polymarket.com/event/fed-rate-hike-in-2026",
+      "liquidity": 214112.54,
+      "category": "Economy",
+      "pred_id": "p00010",
+      "created_at": "2026-06-26T07:40:46.679812+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.15
+    },
+    {
+      "market_id": "601819",
+      "model_prob": 0.55,
+      "prior_prob": 0.55,
+      "confidence": 0.48,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "§2.4/§2.7 election. Datafolha (June 21) has Lula leading 47-43 in a hypothetical runoff (+4, ~10% undecided), and the race has been a coin-flip since March, with Lula recovering as the Vorcaro/Banco Master scandal dents the Bolsonaro side. A +4 runoff lead ~4 months out maps to a ~58-62% conditional win, but Lula could face a tougher opponent than Flavio (e.g. Tarcisio de Freitas), and the first round/runoff is Oct 4/25. Blended, Lula's overall win ~0.52-0.58. Market 0.565 sits right inside that band -> edge -0.015, no defensible mechanism to deviate. PASS. Did not pull full first-round shares / de-vig a second book this pass -> confidence held at 0.48.",
+      "key_uncertainty": "Who the runoff challenger is (Flavio vs a stronger Tarcisio) and how the scandal-driven swing holds over 4 months — that determines Lula's conditional win probability.",
+      "half_life": "21d",
+      "evidence": [
+        {
+          "query": "Brazil 2026 runoff poll Lula Bolsonaro Datafolha June",
+          "source_url": "https://www.bloomberg.com/news/articles/2026-06-20/brazil-lula-maintains-lead-against-bolsonaro-after-bank-scandal",
+          "source_tier": "expert",
+          "key_finding": "Datafolha June 21: Lula leads 47-43 in a hypothetical runoff (+4), unchanged from May; lead linked to the Bolsonaro-side Vorcaro/Banco Master scandal",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:47.064069+00:00"
+        },
+        {
+          "query": "Brazil 2026 election polls tied coin flip",
+          "source_url": "https://www.aljazeera.com/news/2026/5/16/poll-shows-lula-and-bolsonaro-tied-before-brazils-presidential-election",
+          "source_tier": "expert",
+          "key_finding": "Since March the race has polled as a coin-flip / neck-and-neck in second-round scenarios — argues against a confident deviation from the ~0.56 market price",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:47.064076+00:00"
+        }
+      ],
+      "question": "Will Luiz Inácio Lula da Silva win the 2026 Brazilian presidential election?",
+      "market_prob": 0.565,
+      "end_date": "2026-10-04T00:00:00Z",
+      "url": "https://polymarket.com/event/will-luiz-incio-lula-da-silva-win-the-2026-brazilian-presidential-election",
+      "liquidity": 521463.0423,
+      "category": "Politics",
+      "pred_id": "p00011",
+      "created_at": "2026-06-26T07:40:47.064047+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.015
+    },
+    {
+      "market_id": "601826",
+      "model_prob": 0.21,
+      "prior_prob": 0.21,
+      "confidence": 0.42,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "§2.4/§2.7 election (the other leg of Brazil). Flavio must (a) emerge as the right's runoff challenger — contested with Tarcisio de Freitas and others, the main reason Polymarket leaves ~21% on 'Other' — and (b) win the runoff, where the Bolsonaro side trails Lula 43-47 and is freshly damaged by the Vorcaro audio scandal (Flavio asking jailed banker Daniel Vorcaro for $12M). P(makes runoff ~0.5-0.6) x P(wins ~0.40) ~ 0.21-0.24. Market 0.228 sits right there -> edge -0.018 -> PASS. Did not pull first-round candidate shares this pass (data gap) -> low confidence 0.42.",
+      "key_uncertainty": "Whether Flavio or a stronger right candidate (Tarcisio) becomes the runoff challenger — that single fork dominates his win probability.",
+      "half_life": "21d",
+      "evidence": [
+        {
+          "query": "Brazil 2026 runoff Flavio Bolsonaro scandal Vorcaro",
+          "source_url": "https://www.bloomberg.com/news/articles/2026-06-20/brazil-lula-maintains-lead-against-bolsonaro-after-bank-scandal",
+          "source_tier": "expert",
+          "key_finding": "Flavio Bolsonaro trails Lula 43-47 in runoff polling and was dented by audio of him asking jailed banker Daniel Vorcaro for $12M — caps his win odds",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:47.464896+00:00"
+        },
+        {
+          "query": "Brazil 2026 right candidate Tarcisio first round field",
+          "source_url": "https://www.as-coa.org/articles/poll-tracker-brazils-2026-presidential-election",
+          "source_tier": "expert",
+          "key_finding": "The right's nominee is contested (Flavio vs Tarcisio de Freitas et al.), so Flavio is not assured the runoff slot — consistent with the ~21% market price leaving ~21% on 'Other'",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:47.464901+00:00"
+        }
+      ],
+      "question": "Will Flávio Bolsonaro win the 2026 Brazilian presidential election?",
+      "market_prob": 0.2275,
+      "end_date": "2026-10-04T00:00:00Z",
+      "url": "https://polymarket.com/event/will-flvio-bolsonaro-win-the-2026-brazilian-presidential-election",
+      "liquidity": 235348.77965,
+      "category": "Politics",
+      "pred_id": "p00012",
+      "created_at": "2026-06-26T07:40:47.464880+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.0175
+    },
+    {
+      "market_id": "648383",
+      "model_prob": 0.36,
+      "prior_prob": 0.38,
+      "confidence": 0.45,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "§2.4 ballot measure. The SEIU-UHW one-time 5% billionaire wealth tax officially QUALIFIED for the Nov 3 ballot on June 17 (980,438 valid signatures), so the market now resolves purely on PASSAGE. Base rate is unfavorable: the latest poll I found (Jan 2026) had support at just 46% / oppose 44% AFTER information, below the 50% line where CA initiatives usually die, with 69% expecting billionaires to dodge the tax; tax measures typically erode as well-funded opposition spends. That argues passage ~0.33-0.40. The market's +12pt one-day jump (0.24->0.36 on 06-26) is NOT explained by the June-17 qualification (price actually fell after that) and I could not source a fresh favorable poll behind it — possibly structural flow. Model ~0.36 ≈ market 0.365 -> edge -0.005 -> PASS. Stale (Jan) polling + unexplained jump -> confidence 0.45.",
+      "key_uncertainty": "Current (June) passage polling and whatever catalyst drove today's +12pt jump — a genuine new majority-support poll would raise fair value; pure flow would mean it overshot (a NO lean).",
+      "half_life": "30d",
+      "evidence": [
+        {
+          "query": "California billionaire wealth tax qualified ballot June 2026",
+          "source_url": "https://calmatters.org/politics/2026/06/california-unions-billionaire-tax-ballot/",
+          "source_tier": "primary",
+          "key_finding": "Secretary of State certified the measure for the Nov 3 2026 ballot on June 17 (980,438 valid signatures vs ~875,000 needed) — it is now a passage question, not a qualification question",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:47.852957+00:00"
+        },
+        {
+          "query": "California billionaire tax poll support uphill battle",
+          "source_url": "https://www.cnbc.com/2026/01/20/california-billionaire-tax-faces-uphill-battle-new-poll-finds.html",
+          "source_tier": "expert",
+          "key_finding": "Jan 2026 likely-voter poll: support fell to 46% / oppose 44% after information; below-50% early initiatives struggle and 69% expect avoidance — passage base rate is unfavorable",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:47.852962+00:00"
+        },
+        {
+          "query": "California billionaire wealth tax ballot withdrawal progressive opposition June 2026",
+          "source_url": "https://en.wikipedia.org/wiki/2026_California_billionaire_tax_initiative",
+          "source_tier": "expert",
+          "key_finding": "Measure stayed on the Nov 3 ballot (withdrawal negotiations stalled before the June 25 deadline) -- explains the 06-26 price jump (removal of the 'pulled from ballot' auto-NO tail). NEW bearish signal: progressive groups incl. Planned Parenthood and the CA Medical Association came out AGAINST it in June (split coalition), reinforcing sub-50% passage",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.066157+00:00"
+        }
+      ],
+      "question": "Billionaire one-time wealth tax passes in California election 2026?",
+      "market_prob": 0.365,
+      "end_date": "2026-11-03T00:00:00Z",
+      "url": "https://polymarket.com/event/billionaire-one-time-wealth-tax-passes-in-california-election-2026",
+      "liquidity": 427092.2524,
+      "category": "Politics",
+      "pred_id": "p00013",
+      "created_at": "2026-06-26T07:40:47.852937+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.005
+    },
+    {
+      "market_id": "562793",
+      "model_prob": 0.42,
+      "prior_prob": 0.42,
+      "confidence": 0.5,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "rationale": "§2.4 election. Republicans hold 53-47; Democrats need a net +4 to control after Nov 3. The map is the binding constraint: of 35 seats up, 23 are R but mostly in red states, so Dems must hold their own vulnerable seats (Georgia/Ossoff, Michigan/open) AND win ~4 of {Maine, North Carolina, Ohio (Brown vs Husted), Alaska (Peltola)} — near-running-the-table. The midterm penalty on the president's party (GOP) and a D+5-6 generic ballot give Dems a real but sub-even shot; the de-facto market/forecaster consensus is ~GOP-hold 56-57% / Dem ~43%. Polymarket 0.425 sits on that consensus -> edge -0.005, no clean mechanism to deviate -> PASS. Coherence check: the balance-of-power combos cohere (D-Sen+D-House 0.425 ≈ P(D Senate) since D Senate implies D House; R-Sen+R-House 0.185 ≈ 0.575 x ~0.32) — no arbitrage among #4/#5/#7/#13.",
+      "key_uncertainty": "The seat-level translation of the generic-ballot lead in the ~5 decisive races (ME, NC, OH, AK, plus holds in GA/MI) — that is what moves this off the ~0.42 consensus.",
+      "half_life": "30d",
+      "evidence": [
+        {
+          "query": "2026 Senate forecast Democrats control map seats",
+          "source_url": "https://www.270towin.com/2026-senate-election/consensus-2026-senate-forecast",
+          "source_tier": "expert",
+          "key_finding": "R 53-47; Dems need net +4; best pickups Maine/North Carolina/Ohio/Alaska, must defend Georgia & Michigan — consensus favors GOP retention ~56-57%",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:48.258792+00:00"
+        },
+        {
+          "query": "2026 midterm generic ballot Democrats lead",
+          "source_url": "https://www.npr.org/2026/05/02/nx-s1-5806271/2026-midterm-elections-control-senate-race",
+          "source_tier": "expert",
+          "key_finding": "Generic ballot shows Democrats ahead ~5-6 points with fundraising edges in target races — a real but not decisive tailwind given the unfavorable map",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-26T07:40:48.258799+00:00"
+        }
+      ],
+      "question": "Will the Democratic Party control the Senate after the 2026 Midterm elections?",
+      "market_prob": 0.425,
+      "end_date": "2026-11-03T00:00:00Z",
+      "url": "https://polymarket.com/event/will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections",
+      "liquidity": 196218.2632,
+      "category": "Politics",
+      "pred_id": "p00014",
+      "created_at": "2026-06-26T07:40:48.258759+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.005
+    },
+    {
+      "market_id": "1654959",
+      "model_prob": 0.28,
+      "prior_prob": 0.31,
+      "confidence": 0.56,
+      "decision": "POSITION",
+      "direction": "YES",
+      "conviction": 1,
+      "market_prob": 0.181,
+      "half_life": "14d",
+      "rationale": "Section 2.5 stale-price edge vs the sharp curve. CME FedWatch (June 27) prices the July 29 meeting at 69% hold / ~31% HIKE, but Polymarket #15 sits at just 18.1% for a +25bps July hike -- a ~13pt gap where the liquid retail book lags fed-funds futures. The June dot plot (median 3.8%, 9/18 higher) and 4.2% headline CPI corroborate near-term hike risk. I shade the curve's 31% to 0.28 for the chance the energy spike fades before Jul 29 (core soft at +0.2% m/m; an Iran deal could pull oil down). 0.28 vs 0.181 -> edge +0.099 YES. Conviction 1 (token): same Fed-hawkishness factor as the primary #2 position, but a fast-resolving (Jul 29) leg that will calibrate the curve-vs-Polymarket thesis quickly.",
+      "key_uncertainty": "Whether the first 2026 hike lands specifically at the July 29 meeting vs being deferred to Sep/Oct/Dec.",
+      "evidence": [
+        {
+          "query": "CME FedWatch July 29 2026 hike probability",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "FedWatch June 27: July 29 = 69% hold / ~31% hike -- the sharp prior",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.052526+00:00"
+        },
+        {
+          "query": "Polymarket July hike 25bps price vs fed funds futures",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "Polymarket #15 trades 0.180/0.181 (tight) = 18.1% July hike, ~13pts below the curve's 31%",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.052530+00:00"
+        },
+        {
+          "query": "May 2026 CPI core soft energy",
+          "source_url": "https://www.cnbc.com/2026/06/10/cpi-inflation-report-may-2026.html",
+          "source_tier": "primary",
+          "key_finding": "Core CPI only +0.2% m/m / 2.9% y/y (spike is energy) -- small shade below the curve",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.052532+00:00"
+        },
+        {
+          "query": "May 2026 PCE core m/m vs May CPI core July hike",
+          "source_url": "https://www.cbsnews.com/news/pce-report-report-may-2026-federal-reserve-inflation/",
+          "source_tier": "primary",
+          "key_finding": "May PCE (Jun 27) core +0.3% m/m / 3.4% y/y, headline 4.1% -- firmer than the soft May CPI core (+0.2%) I'd shaded the July curve below; mild hawkish support for a July-29 hike.",
+          "likelihood_ratio": 1.1,
+          "direction": "YES",
+          "fetched_at": "2026-06-29T07:01:00.346820+00:00"
+        },
+        {
+          "query": "CME FedWatch June 29 July 29 hike vs Polymarket no-change 0.815",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "Jun 29: July 29 = 70.1% hold / ~30% hike on the curve; Polymarket no-change rose to 0.815 (~18.5% July hike). The ~12pt curve-vs-retail gap persists -> edge intact, hold.",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-29T07:01:00.346827+00:00"
+        },
+        {
+          "query": "CME FedWatch June 30 2026 July hike vs Polymarket no-change 0.805",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "Jun 30: curve July-29 hike ~30% vs Polymarket implied ~19.5% July change (no-change market 0.805); the ~10pt curve-vs-retail gap persists. June jobs report (Jul 2, 8:30am ET) is the catalyst that resolves the July-meeting odds before settlement. Edge intact -> hold.",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-30T07:41:20.354317+00:00"
+        },
+        {
+          "query": "CME FedWatch July 29 2026 hike vs Polymarket July change; June jobs report catalyst",
+          "source_url": "https://growbeansprout.com/tools/fedwatch",
+          "source_tier": "market",
+          "key_finding": "Jul-1 re-check: curve Jul-29 hike ~30% vs Polymarket implied ~19% July change (no-change 0.795; +25bps market 0.189, up from 0.181) -> the ~11pt curve-vs-retail gap persists. June jobs report tomorrow (Jul 2, 8:30am ET) resolves much of the July-meeting odds before settlement; resilient labor data (strong ADP, May 172k) skews risk toward the curve. Edge intact -> hold.",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-07-01T07:38:26.157108+00:00"
+        }
+      ],
+      "pred_id": "p00015",
+      "created_at": "2026-06-27T07:33:18.052513+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.099,
+      "question": "Will the Fed increase interest rates by 25 bps after the July 2026 meeting?",
+      "end_date": "2026-07-29T00:00:00Z",
+      "url": "https://polymarket.com/event/will-the-fed-increase-interest-rates-by-25-bps-after-the-july-2026-meeting",
+      "liquidity": 515001.66637,
+      "category": "Economy"
+    },
+    {
+      "market_id": "540843",
+      "model_prob": 0.5,
+      "prior_prob": 0.5,
+      "confidence": 0.8,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "market_prob": 0.505,
+      "half_life": "34d",
+      "rationale": "Resolution-criteria mechanic, not a geopolitics call. YES only if China invades Taiwan before GTA VI releases; NO if GTA VI releases first; 50-50 if NEITHER occurs by Jul 31 2026 23:59 ET. Rockstar has CONFIRMED GTA VI for Nov 19 2026 (pre-orders live since Jun 25) -- AFTER the Jul 31 cutoff -- so it cannot release in-window. A PRC offensive in the next 34 days is a ~0.2% tail (no mobilization; cf p00003). So with ~99.8% probability NEITHER occurs by Jul 31 and the market resolves 50-50; fair value of a YES share = ~0.501 vs the 0.505 mid. Edge ~0 -> PASS. Confidence high because the load-bearing fact (the GTA VI date) is locked and primary-sourced.",
+      "key_uncertainty": "A black-swan PRC offensive before Jul 31 (the only path off the 50-50 resolution) -- base rate ~0.2%.",
+      "evidence": [
+        {
+          "query": "GTA VI release date confirmed Rockstar November 19 2026",
+          "source_url": "https://www.rockstargames.com/newswire/article/ak3ak31a49a221/grand-theft-auto-vi-is-now-set-to-launch-november-19-2026",
+          "source_tier": "primary",
+          "key_finding": "Rockstar confirms GTA VI launches Nov 19 2026 (after the Jul 31 cutoff); pre-orders opened Jun 25 2026",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.054551+00:00"
+        },
+        {
+          "query": "China Taiwan invasion 2026 base rate mobilization ISW",
+          "source_url": "https://www.understandingwar.org/research/china-taiwan/china-taiwan-update-march-27-2026/",
+          "source_tier": "expert",
+          "key_finding": "No PRC mobilization for a 2026 invasion; a 34-day offensive window is a ~0.2% tail",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-06-27T07:33:18.054555+00:00"
+        }
+      ],
+      "pred_id": "p00016",
+      "created_at": "2026-06-27T07:33:18.054539+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.005,
+      "question": "Will China invades Taiwan before GTA VI?",
+      "end_date": "2026-07-31T12:00:00Z",
+      "url": "https://polymarket.com/event/will-china-invades-taiwan-before-gta-vi-716-644",
+      "liquidity": 63152.0723,
+      "category": "Politics"
+    },
+    {
+      "market_id": "540819",
+      "model_prob": 0.5,
+      "prior_prob": 0.5,
+      "confidence": 0.85,
+      "decision": "PASS",
+      "direction": "YES",
+      "conviction": 1,
+      "market_prob": 0.495,
+      "half_life": "34d",
+      "rationale": "Same mechanic as the Taiwan-before-GTA-VI market. Resolves 50-50 if neither the Second Coming nor GTA VI's release occurs by Jul 31 2026. GTA VI is confirmed for Nov 19 2026 (after the cutoff) and the other event has a ~0 base rate, so it resolves 50-50 with near-certainty; fair value of YES ~0.50 vs the 0.495 mid. Edge ~+0.005 < MIN_EDGE -> PASS (collecting ~0.50 on a 0.495 YES is within spread and lost to fees). Confidence high: the GTA VI date is locked.",
+      "key_uncertainty": "None material; resolution is effectively mechanical given the confirmed GTA VI date.",
+      "evidence": [
+        {
+          "query": "GTA VI release date confirmed Rockstar November 19 2026",
+          "source_url": "https://www.rockstargames.com/newswire/article/ak3ak31a49a221/grand-theft-auto-vi-is-now-set-to-launch-november-19-2026",
+          "source_tier": "primary",
+          "key_finding": "GTA VI confirmed Nov 19 2026 -- after the Jul 31 cutoff -- so the market resolves 50-50 absent the near-zero other event",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.056106+00:00"
+        }
+      ],
+      "pred_id": "p00017",
+      "created_at": "2026-06-27T07:33:18.056097+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.005,
+      "question": "Will Jesus Christ return before GTA VI?",
+      "end_date": "2026-07-31T12:00:00Z",
+      "url": "https://polymarket.com/event/will-jesus-christ-return-before-gta-vi-665",
+      "liquidity": 402723.6204,
+      "category": "Other"
+    },
+    {
+      "market_id": "562794",
+      "model_prob": 0.58,
+      "prior_prob": 0.575,
+      "confidence": 0.5,
+      "decision": "PASS",
+      "direction": "YES",
+      "conviction": 1,
+      "market_prob": 0.575,
+      "half_life": "30d",
+      "rationale": "Section 2.4 -- coherent complement of the Dem-Senate market (p00014, model 0.42). Republicans hold 53-47; the 2026 Class II map is GOP-friendly, so even with a D+5-6 generic ballot and the midterm penalty on the president's party, consensus favors GOP retention ~56-58%. R-Senate at 0.575 sits on that and equals 1 - P(D Senate); model 0.58 -> edge +0.005, no clean mechanism to deviate -> PASS. The Senate is the GOP firewall while the House leans D (p00008 ~0.80).",
+      "key_uncertainty": "Seat-level outcomes in the ~5 decisive races (ME, NC, OH, AK + D holds in GA/MI).",
+      "evidence": [
+        {
+          "query": "2026 Senate consensus forecast Republican retention map",
+          "source_url": "https://www.270towin.com/2026-senate-election/consensus-2026-senate-forecast",
+          "source_tier": "expert",
+          "key_finding": "R 53-47; GOP-leaning 2026 map; consensus favors Republican Senate retention ~56-58% -- coherent with 0.575",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.057494+00:00"
+        }
+      ],
+      "pred_id": "p00018",
+      "created_at": "2026-06-27T07:33:18.057486+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.005,
+      "question": "Will the Republican Party control the Senate after the 2026 Midterm elections?",
+      "end_date": "2026-11-03T00:00:00Z",
+      "url": "https://polymarket.com/event/will-the-republican-party-control-the-senate-after-the-2026-midterm-elections",
+      "liquidity": 174675.921,
+      "category": "Politics"
+    },
+    {
+      "market_id": "562828",
+      "model_prob": 0.43,
+      "prior_prob": 0.425,
+      "confidence": 0.5,
+      "decision": "PASS",
+      "direction": "YES",
+      "conviction": 1,
+      "market_prob": 0.425,
+      "half_life": "30d",
+      "rationale": "Section 2.4 balance-of-power combo: P(D Senate AND D House). Winning the harder Senate (~0.42) all but guarantees the easier House (~0.80 D), so this combo ~ P(D Senate) ~ 0.42-0.44. Market 0.425 is coherent; model 0.43 -> edge ~0 -> PASS. Cross-check: the four combos (DD 0.425, RD 0.375, RR 0.185, DR ~0.015) sum to 1.0 and imply P(D House)~0.80 and P(R Senate)~0.575 -- internally consistent with the standalone markets, so no arbitrage.",
+      "key_uncertainty": "Senate control (the binding leg); the House is ~priced as a near-lock for Democrats.",
+      "evidence": [
+        {
+          "query": "2026 midterm balance of power combos coherence",
+          "source_url": "https://www.270towin.com/2026-senate-election/consensus-2026-senate-forecast",
+          "source_tier": "expert",
+          "key_finding": "Combos cohere: DD 0.425 + RD 0.375 + RR 0.185 + DR ~0.015 = 1.0; imply P(D House)~0.80, P(R Senate)~0.575",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.058930+00:00"
+        }
+      ],
+      "pred_id": "p00019",
+      "created_at": "2026-06-27T07:33:18.058921+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.005,
+      "question": "2026 Balance of Power: D Senate, D House",
+      "end_date": "2026-11-03T00:00:00Z",
+      "url": "https://polymarket.com/event/2026-balance-of-power-d-senate-d-house-949",
+      "liquidity": 205214.3637,
+      "category": "Politics"
+    },
+    {
+      "market_id": "562830",
+      "model_prob": 0.38,
+      "prior_prob": 0.375,
+      "confidence": 0.5,
+      "decision": "PASS",
+      "direction": "YES",
+      "conviction": 1,
+      "market_prob": 0.375,
+      "half_life": "30d",
+      "rationale": "Section 2.4 balance-of-power combo: P(R Senate AND D House) -- the modal 'split government' outcome. Equals P(R Senate ~0.575) minus P(R sweep ~0.185) = ~0.39, ~ the 0.375 market. Coherent with the field (combos sum to 1.0). model 0.38 -> edge ~0 -> PASS.",
+      "key_uncertainty": "Whether Republicans hold the Senate while Democrats flip the House (the consensus base case).",
+      "evidence": [
+        {
+          "query": "2026 split government R Senate D House odds",
+          "source_url": "https://www.270towin.com/2026-senate-election/consensus-2026-senate-forecast",
+          "source_tier": "expert",
+          "key_finding": "R-Senate/D-House is the modal split-government outcome; 0.375 coheres with P(R Senate)~0.575 and P(R sweep)~0.185",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.060341+00:00"
+        }
+      ],
+      "pred_id": "p00020",
+      "created_at": "2026-06-27T07:33:18.060334+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.005,
+      "question": "2026 Balance of Power: R Senate, D House",
+      "end_date": "2026-11-03T00:00:00Z",
+      "url": "https://polymarket.com/event/2026-balance-of-power-r-senate-d-house-444",
+      "liquidity": 152940.7922,
+      "category": "Politics"
+    },
+    {
+      "market_id": "562831",
+      "model_prob": 0.19,
+      "prior_prob": 0.185,
+      "confidence": 0.5,
+      "decision": "PASS",
+      "direction": "YES",
+      "conviction": 1,
+      "market_prob": 0.185,
+      "half_life": "30d",
+      "rationale": "Section 2.4 balance-of-power combo: P(R sweep) = P(R Senate AND R House). Requires Republicans to defy the midterm penalty and hold the House (~0.20 R) while keeping the Senate -- market 0.185. model 0.19 -> edge ~0 -> PASS. Coherent with the field; the president's-party House loss is the dominant base rate against a sweep.",
+      "key_uncertainty": "Whether the GOP can hold the House against the historical midterm penalty (the low-probability leg).",
+      "evidence": [
+        {
+          "query": "2026 Republican sweep House Senate midterm penalty",
+          "source_url": "https://www.270towin.com/2026-senate-election/consensus-2026-senate-forecast",
+          "source_tier": "expert",
+          "key_finding": "R sweep needs the GOP to hold the House vs the midterm penalty (House ~0.80 D); 0.185 coheres with the field",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T07:33:18.061854+00:00"
+        }
+      ],
+      "pred_id": "p00021",
+      "created_at": "2026-06-27T07:33:18.061846+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.005,
+      "question": "2026 Balance of Power: R Senate, R House",
+      "end_date": "2026-11-03T00:00:00Z",
+      "url": "https://polymarket.com/event/2026-balance-of-power-r-senate-r-house-537",
+      "liquidity": 224499.4656,
+      "category": "Politics"
+    },
+    {
+      "market_id": "562803",
+      "model_prob": 0.19,
+      "prior_prob": 0.195,
+      "confidence": 0.5,
+      "decision": "PASS",
+      "direction": "YES",
+      "conviction": 1,
+      "half_life": "30d",
+      "rationale": "Section 2.4 election -- coherent complement of the Dem-House market (p00008, model 0.80, mkt 0.805). For Republicans to control the House they must defy the midterm penalty on the president's party (Trump's GOP) against a D+5-6 generic ballot; consensus puts Democrats ~80% to flip the House. R-House at 0.175 ~ 1 - P(Dem House 0.805) and coheres with the balance-of-power combos (P(R House) = RR 0.185 + DR ~0.015 ~ 0.20). model 0.19 -> edge +0.015 < MIN_EDGE 0.08 -> PASS. No mechanism to deviate; the House is priced as a near-lock for Democrats.",
+      "key_uncertainty": "A late national-environment swing toward the GOP (or a redistricting shock) that would lift R-House off ~0.18 -- not visible in the current generic ballot.",
+      "market_prob": 0.175,
+      "evidence": [
+        {
+          "query": "2026 midterm generic ballot House Democrats midterm penalty",
+          "source_url": "https://www.npr.org/2026/05/02/nx-s1-5806271/2026-midterm-elections-control-senate-race",
+          "source_tier": "expert",
+          "key_finding": "Generic ballot ~D+5-6 and the president's-party midterm penalty make a Democratic House the consensus (~80%); R-House ~0.18-0.20 -- coherent with the 0.175 price",
+          "likelihood_ratio": 1.0,
+          "direction": "YES",
+          "fetched_at": "2026-06-27T18:39:28.706534+00:00"
+        }
+      ],
+      "question": "Will the Republican Party control the House after the 2026 Midterm elections?",
+      "end_date": "2026-11-03T00:00:00Z",
+      "url": "https://polymarket.com/event/will-the-republican-party-control-the-house-after-the-2026-midterm-elections",
+      "liquidity": 446623.2108,
+      "category": "Politics",
+      "pred_id": "p00022",
+      "created_at": "2026-06-27T18:39:28.706517+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": 0.015
+    },
+    {
+      "market_id": "test",
+      "model_prob": 0.5,
+      "market_prob": 0.5,
+      "confidence": 0.6,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "pred_id": "p00023",
+      "created_at": "2026-06-28T23:35:56.833061+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "prior_prob": null,
+      "evidence": [],
+      "edge": 0.0
+    },
+    {
+      "market_id": "678747",
+      "model_prob": 0.52,
+      "prior_prob": 0.5,
+      "market_prob": 0.528,
+      "confidence": 0.42,
+      "decision": "PASS",
+      "direction": "NO",
+      "conviction": 1,
+      "category": "Politics",
+      "half_life": "30d",
+      "rationale": "RESOLUTION-STRUCTURE FORENSICS flip a naive YES trap into a two-sided coin-flip. This is a negRisk EXACT-COUNT bucket in the event 'How many different countries will Israel strike in 2026?' (buckets 0-15+). Buckets 0,1,2,3 are CLOSED (resolved NO); buckets 4-15+ OPEN -> the counted total is currently EXACTLY 4 (Iran Feb-28, Lebanon Mar-2, Syria [988 air/arty strikes], + a 4th; Israel has also airstruck Yemen/Sanaa and there are US-Israeli strikes on Iraq). So this market does NOT mean '>=4 struck' (that would be ~locked YES); it resolves YES only if the final count STAYS exactly 4 -- i.e. Israel opens NO qualifying 5th-country airstrike in H2 2026. Strict resolution: only aerial bombs/drones/missiles that IMPACT ground and are Israeli-acknowledged/consensus-reported count; intercepts, artillery, ground incursions, naval shelling, US-attributed strikes do NOT. Two-sided: (NO/5+) Israel is striking region-wide and aggressively (Iran, Lebanon, Syria, Yemen already; Iraq a live next-count given documented Israel-linked strikes + a W-Iraq outpost) with 6 months left; (YES/stays-4) the war is on a de-escalation track (Jun-17 Islamabad Memorandum + 60-day roadmap), the strict bar has held the count at exactly 4 for months despite broad activity, and the easy targets are exhausted. Net ~0.52 vs market 0.528 -> edge -0.008 < MIN_EDGE 0.08 -> PASS. The real value here is the forensics that kill the >=4 misread; the residual is a war-tempo coin-flip with no demonstrable edge, on a thin book.",
+      "key_uncertainty": "Whether Israel lands a QUALIFYING airstrike (aerial, impacts ground, Israeli-attributed) on a 5th distinct country in H2 2026 -- Iraq is the prime candidate (Israel-linked strikes + outpost already documented but not yet counted under the strict bar); vs the ceasefire/roadmap freezing the count at 4. Re-derive if a 5th country is struck or if the ceasefire firms/collapses.",
+      "evidence": [
+        {
+          "query": "Polymarket 678747 negRisk How many countries Israel strike 2026 buckets",
+          "source_url": "https://gamma-api.polymarket.com/markets/678747",
+          "source_tier": "primary",
+          "key_finding": "negRisk exact-count event 'How many different countries will Israel strike in 2026?': buckets 0/1/2/3 CLOSED (resolved NO), buckets 4-15+ OPEN -> counted total is currently EXACTLY 4; this 'Yes' resolves only if the final count STAYS exactly 4 (no qualifying 5th-country strike). The strict bar has held the count at 4 for months despite region-wide activity -> mild confirmation-of-no-new-country.",
+          "likelihood_ratio": 1.1,
+          "direction": "YES",
+          "fetched_at": "2026-07-01T07:37:24.362842+00:00"
+        },
+        {
+          "query": "List of attacks during the 2026 Iran war Israel strikes Iran Lebanon Syria",
+          "source_url": "https://en.wikipedia.org/wiki/List_of_attacks_during_the_2026_Iran_war",
+          "source_tier": "expert",
+          "key_finding": "Israel struck Iran (Operation Roaring Lion, Feb 28), Lebanon (Hezbollah, Mar 2) and Syria (988 air/artillery strikes in 2026) -- three unambiguous counted countries; context for the running tally.",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-07-01T07:37:24.362848+00:00"
+        },
+        {
+          "query": "Israel airstrike Yemen Sanaa 2026 Houthi prime minister presidential complex",
+          "source_url": "https://www.foxnews.com/world/israel-eliminates-houthi-prime-minister-yemen-airstrike-targeting-senior-government-officials",
+          "source_tier": "expert",
+          "key_finding": "Israel airstruck Sanaa, Yemen in 2026 (presidential complex, Hizaz/Asar power plants, fuel storage; killed the Houthi PM) -- Israel demonstrably opens distant qualifying air fronts, but Yemen is already inside the counted 4 so this is a breadth signal, not a fresh 5th.",
+          "likelihood_ratio": 0.95,
+          "direction": "NO",
+          "fetched_at": "2026-07-01T07:37:24.362851+00:00"
+        },
+        {
+          "query": "2026 United States-Israeli strikes on Iraq PMF militias outpost western Iraq",
+          "source_url": "https://en.wikipedia.org/wiki/2026_United_States%E2%80%93Israeli_strikes_on_Iraq",
+          "source_tier": "expert",
+          "key_finding": "Documented US-Israeli strikes on Iraqi Shia militias (PMF/IRI) plus a covert Israeli outpost in western Iraq -- Iraq is a live 5th-country candidate that could tip the count to 5 under consensus reporting.",
+          "likelihood_ratio": 0.9,
+          "direction": "NO",
+          "fetched_at": "2026-07-01T07:37:24.362854+00:00"
+        },
+        {
+          "query": "US Iran ceasefire June 2026 Islamabad Memorandum 60-day roadmap de-escalation",
+          "source_url": "https://www.npr.org/2026/06/23/nx-s1-5867322/us-iran-finalize-war-ending-deal",
+          "source_tier": "expert",
+          "key_finding": "June-17 Islamabad Memorandum ceasefire + 60-day roadmap toward a war-ending deal -> a de-escalation trajectory that lowers the forward hazard of Israel opening a NEW distinct-country air front in H2.",
+          "likelihood_ratio": 1.15,
+          "direction": "YES",
+          "fetched_at": "2026-07-01T07:37:24.362856+00:00"
+        },
+        {
+          "query": "Polymarket Israel strike 4 countries liquidity book depth",
+          "source_url": "https://polymarket.com/event/will-israel-strike-4-countries-in-november-2025",
+          "source_tier": "market",
+          "key_finding": "Thin book (~$53k liquidity, ~$1k 24h volume) -> unreliable price to act on; per liquidity hygiene, cut confidence rather than treat a small deviation as edge.",
+          "likelihood_ratio": 1.0,
+          "direction": "NO",
+          "fetched_at": "2026-07-01T07:37:24.362859+00:00"
+        }
+      ],
+      "question": "Will Israel strike 4 countries in 2026?",
+      "end_date": "2026-12-31T00:00:00Z",
+      "url": "https://polymarket.com/event/will-israel-strike-4-countries-in-november-2025",
+      "liquidity": 53284.53615,
+      "pred_id": "p00024",
+      "created_at": "2026-07-01T07:37:24.362814+00:00",
+      "status": "open",
+      "outcome": null,
+      "brier": null,
+      "edge": -0.008
     }
   ]
 }
