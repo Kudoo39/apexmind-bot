@@ -32,7 +32,7 @@ from pathlib import Path
 
 import config
 from tools import (atomic_io, backtest, briefing, logger, memory_store, notification,
-                  polymarket, portfolio, research, schema_sentinel, scoring)
+                  polymarket, portfolio, research, schema_sentinel, scoring, trade_store)
 
 # Windows consoles default to cp1252 and choke on the emojis / sparklines we print.
 # Force UTF-8 output so the CLI is safe everywhere.
@@ -62,7 +62,7 @@ def cmd_scan(_args) -> None:
     print(f"  scanned {len(everything)} binary markets")
     print(f"  shortlisted {len(short)}")
     print(f"  briefing written -> {config.BRIEFING_FILE}")
-    print("\nNext: in Claude Code, run the SUPERVISOR role over the briefing,")
+    print(f"\nNext: in {config.agent_label()}, run the SUPERVISOR role over the briefing,")
     print("then log each call with:  python main_agent.py record '<json>'")
 
 
@@ -224,9 +224,16 @@ def cmd_status(_args) -> None:
                  p.get("model_prob"), p.get("market_prob"),
                  p.get("decision"), p.get("direction"), p.get("conviction")]
                 for p in openp]
-        print("\nOpen positions:")
+        print("\nOpen predictions (not necessarily held trades):")
         print(tabulate(rows, headers=["id", "question", "model", "mkt",
                                       "decision", "dir", "conv"]))
+
+    trades = trade_store.load_trades()
+    if trades:
+        holding = sum(t.get("status") == "HOLDING" for t in trades)
+        closed = sum(t.get("status") == "CLOSED" for t in trades)
+        print(f"\nActual execution ledger: {holding} holding · {closed} closed "
+              "(run `trades --refresh` for actions)")
 
 
 def cmd_reflect(_args) -> None:
@@ -262,7 +269,7 @@ def cmd_reflect(_args) -> None:
         print("  evidence-tier Brier:",
               {t: v["mean_brier"] for t, v in et.items()},
               f"(low-tier share {evidence_analytics['low_tier_share']})")
-    print("Now run the REFLECTION role in Claude Code over that file.")
+    print(f"Now run the REFLECTION role in {config.agent_label()} over that file.")
 
 
 def cmd_lesson(args) -> None:
@@ -278,6 +285,56 @@ def cmd_portfolio(_args) -> None:
     print("\n".join(portfolio.summary_lines(report)))
     logger.log_event("portfolio", {"n_positions": report["n_positions"],
                                     "flags": report["flags"]})
+
+
+def cmd_trade_sync(args) -> None:
+    """Import actual executions without changing prediction lifecycle."""
+    payload = _load_json_input(args.file, args.json)
+    entries = payload.get("trades") if isinstance(payload, dict) else payload
+    try:
+        trades = trade_store.sync_trades(entries, replace=args.replace)
+    except (TypeError, ValueError) as exc:
+        sys.exit(str(exc))
+    holding = sum(t.get("status") == "HOLDING" for t in trades)
+    closed = sum(t.get("status") == "CLOSED" for t in trades)
+    logger.log_event("trade_sync", {"holding": holding, "closed": closed,
+                                     "replace": args.replace})
+    print(f"Trade ledger synced: {holding} holding · {closed} closed")
+
+
+def cmd_trades(args) -> None:
+    """Show executions, model residual edge, and action/exit targets."""
+    if args.refresh:
+        def _fetch(mid: str):
+            raw = polymarket.get_market_by_id(mid)
+            return polymarket.normalise_market(raw) if raw else None
+
+        updated, missing = trade_store.refresh_prices(_fetch)
+        print(f"Price refresh: {updated} updated · {missing} unavailable")
+    rows = trade_store.snapshot_rows(memory_store.load_predictions())
+    if not rows:
+        print("Trade ledger is empty. Import a snapshot with trade-sync --file <json>.")
+        return
+    summary = trade_store.ledger_summary()
+    print(f"Execution summary: {summary['holding']} holding · {summary['closed']} closed "
+          f"· unrealized ${summary['unrealized_pnl']:+.2f} "
+          f"· realized ${summary['realized_pnl']:+.2f}")
+    print("Actual trades (prediction status is tracked separately):")
+    for row in rows:
+        trade = row["trade"]
+        price = (trade.get("close_price") if trade.get("status") == "CLOSED"
+                 else row.get("current_side_price"))
+        target = row.get("take_profit_price")
+        extra = ""
+        if row.get("unrealized_pnl") is not None:
+            extra += f" · pnl ${row['unrealized_pnl']:+.2f}"
+        if target is not None:
+            extra += f" · light-profit/review {target:.1%}"
+        now = "—" if price is None else f"{float(price):.1%}"
+        print(f"  {trade.get('trade_id')} {trade.get('status'):<7} {trade.get('side')} "
+              f"{(trade.get('question') or row.get('question') or '')[:52]} "
+              f"entry {trade.get('entry_price'):.1%} now {now} "
+              f"→ {row.get('trade_action')}{extra}")
 
 
 def cmd_notify(args) -> None:
@@ -298,8 +355,23 @@ def cmd_notify(args) -> None:
             idset = {str(i) for i in ids}
             positions = [p for p in preds if p.get("pred_id") in idset]
         else:
-            positions = [p for p in memory_store.open_predictions()
-                         if p.get("decision") == "POSITION"]
+            holdings = trade_store.holding_trades()
+            if holdings:
+                hold_ids = {str(t.get("pred_id")) for t in holdings}
+                hold_markets = {str(t.get("market_id")) for t in holdings}
+                positions = [p for p in preds if str(p.get("pred_id")) in hold_ids
+                             or str(p.get("market_id")) in hold_markets]
+                held_pred_ids = {str(p.get("pred_id")) for p in positions}
+                positions += [p for p in memory_store.open_predictions()
+                              if p.get("decision") == "POSITION"
+                              and str(p.get("pred_id")) not in held_pred_ids
+                              and (trade_store.find_trade(p) or {}).get("status") != "CLOSED"]
+            else:
+                positions = [p for p in memory_store.open_predictions()
+                             if p.get("decision") == "POSITION"
+                             and (trade_store.find_trade(p) or {}).get("status") != "CLOSED"]
+
+    positions = [trade_store.decorate_prediction(p) for p in positions]
 
     msg = notification.build_decision_message(
         executive_summary=payload.get("executive_summary", ""),
@@ -535,7 +607,7 @@ def cmd_schema_check(_args) -> None:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="main_agent.py",
-        description="ApexMind orchestrator — Python plumbing for a Claude-Code brain.")
+        description="ApexMind orchestrator — deterministic plumbing for a reasoning agent.")
     sub = p.add_subparsers(dest="command", required=True)
 
     sub.add_parser("scan", help="scan Polymarket and build the briefing").set_defaults(
@@ -565,6 +637,18 @@ def build_parser() -> argparse.ArgumentParser:
         func=cmd_status)
     sub.add_parser("portfolio", help="open-position exposure & correlation flags").set_defaults(
         func=cmd_portfolio)
+    ts = sub.add_parser("trade-sync",
+                        help="import/upsert actual holdings separately from predictions")
+    ts.add_argument("json", nargs="?", default="-",
+                    help="trade snapshot JSON, or '-' / omit to read stdin")
+    ts.add_argument("--file", "-f", help="read snapshot JSON from a file")
+    ts.add_argument("--replace", action="store_true",
+                    help="treat snapshot as authoritative and replace the trade ledger")
+    ts.set_defaults(func=cmd_trade_sync)
+    tr = sub.add_parser("trades", help="show actual holdings and model-aware actions")
+    tr.add_argument("--refresh", action="store_true",
+                    help="refresh current prices from Polymarket before reporting")
+    tr.set_defaults(func=cmd_trades)
     sub.add_parser("reflect", help="build a reflection packet").set_defaults(
         func=cmd_reflect)
 

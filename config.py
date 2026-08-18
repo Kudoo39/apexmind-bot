@@ -34,6 +34,7 @@ for _d in (MEMORY_DIR, LOGS_DIR, DATA_DIR, RESEARCH_CACHE_DIR):
 # Memory files
 BELIEFS_FILE = MEMORY_DIR / "beliefs.json"
 PREDICTIONS_FILE = MEMORY_DIR / "predictions.json"
+TRADES_FILE = MEMORY_DIR / "trades.json"
 CALIBRATION_FILE = MEMORY_DIR / "calibration.json"
 LESSONS_FILE = MEMORY_DIR / "lessons.md"
 
@@ -150,6 +151,9 @@ SCHEMA_SENTINEL_INTERVAL = _env("APEX_SCHEMA_SENTINEL_INTERVAL", 86400)  # s bet
 MIN_EDGE = _env("APEX_MIN_EDGE", 0.08)
 # Minimum confidence the Specialist must express to act on an edge.
 MIN_CONFIDENCE = _env("APEX_MIN_CONFIDENCE", 0.55)
+# A light-profit review defaults to 5% on entry cost. Reaching it alone never
+# forces an exit while the model's residual edge still clears MIN_EDGE.
+LIGHT_PROFIT_TARGET = _env("APEX_LIGHT_PROFIT_TARGET", 0.05)
 
 # Calibration reliability floor: a bucket with fewer than MIN_BUCKET_N resolved
 # markets is too small to trust — its realised rate (and `gap`) is noise, not signal.
@@ -229,7 +233,14 @@ def telegram_ready() -> bool:
 
 
 # --------------------------------------------------------------------------- #
-# Optional headless automation (scheduled runs)
+# Optional coding-agent automation (interactive and scheduled runs)
 # --------------------------------------------------------------------------- #
-# Path to the Claude Code CLI. Only used by run_analysis.py --auto.
-CLAUDE_CLI = _env("APEX_CLAUDE_CLI", "claude")
+# Claude remains the default so existing installations keep their current behaviour.
+AGENT_PROVIDER = str(_env("APEX_AGENT_PROVIDER", "claude")).strip().lower()
+CLAUDE_CLI = _env("APEX_CLAUDE_CLI", "claude.cmd" if os.name == "nt" else "claude")
+CODEX_CLI = _env("APEX_CODEX_CLI", "codex.cmd" if os.name == "nt" else "codex")
+
+
+def agent_label() -> str:
+    """Human-readable name for the configured reasoning agent."""
+    return "Codex" if AGENT_PROVIDER == "codex" else "Claude Code"

@@ -245,6 +245,10 @@ For each Specialist estimate:
    as a size top-up within the per-factor cap — never a fresh independent position.
    Name the driver in the rationale either way so Reflection can audit clusters.
    *Two bets that win together are one bet at double size, not diversification.*
+   Read `memory/trades.json` when it exists: factor redundancy is based on actual
+   `HOLDING` executions, not every open prediction marked POSITION. A CLOSED trade
+   remains open for forecast calibration but contributes zero live exposure and must
+   not be described as HOLD or silently reopened.
 3. **Direction:** `YES` if `model_prob > market_prob`, else `NO`.
 4. **Sizing — fractional Kelly, never full.** For a binary at price `p_m`, a YES
    bet pays net odds `b = (1 − p_m) / p_m`. Full Kelly fraction is

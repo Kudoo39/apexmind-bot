@@ -36,6 +36,9 @@ mechanism the price is missing. Tunables live in `config.py`
    → writes `data/briefing_latest.md`.
 2. **Read** `system_prompts.md` and `data/briefing_latest.md`. Honour the calibration
    gaps and lessons it surfaces.
+   Also read `memory/trades.json` when present. Predictions and actual executions are
+   separate: selling never resolves/voids a prediction, and an open prediction is not
+   proof that the user still holds it.
 3. **Supervise → Specialise.** Pick 3–6 markets; for each, **research first**
    (see below), then produce `model_prob ∈ [0,1]`, `confidence ∈ [0,1]`,
    `key_uncertainty`, `half_life`, and a short `rationale`.
@@ -82,6 +85,13 @@ mechanism the price is missing. Tunables live in `config.py`
    slipped in, set its `status` to `"void"` — **do NOT delete the row** (`pred_id` =
    `len(preds)+1`, so deleting causes id collisions on the next record). Always `record`
    via the **CLI** (`--file pred.json`), never `record_prediction()` directly.
+
+   **Assign an execution action when a trade exists.** Run `python main_agent.py
+   trades --refresh` to inspect actual holdings. Distinguish `NEW_CANDIDATE`, `HOLD`,
+   `HOLD_NO_ADD`, `TAKE_PROFIT`, `EXIT_REVIEW`, and `CLOSED_NO_ACTION`. Never interpret
+   a stored `POSITION` as `HOLD` when the trade ledger says CLOSED; reopening requires
+   an explicit fresh `REENTER` analysis. A light-profit review defaults to 5% ROI and
+   only triggers profit-taking when residual model edge is below `MIN_EDGE`.
 
    **Non-binary / 50-50 resolution** (e.g. "X before GTA VI", void-able, multi-outcome):
    Brier is only meaningful on a clean YES/NO. Default to **PASS** with `model_prob ≈
@@ -207,6 +217,8 @@ auto-upgrades, no code change).
 | `python main_agent.py auto-resolve [--dry-run]` | settle predictions from Polymarket |
 | `python main_agent.py backtest --days 90 [--strategy revert]` | replay resolved markets; bootstrap calibration |
 | `python main_agent.py portfolio` | open-position exposure & correlation flags |
+| `python main_agent.py trade-sync --file trades.json [--replace]` | sync actual holdings without altering predictions |
+| `python main_agent.py trades [--refresh]` | actual holdings, residual edge, and HOLD/TAKE_PROFIT actions |
 | `python main_agent.py lesson "<text>" --category <Cat>` | append a (category-routed) lesson |
 | `python main_agent.py status` | track record & calibration |
 | `python main_agent.py resolve <id> <0\|1>` | resolve a market manually (refuses to re-resolve) |

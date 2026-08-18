@@ -6,13 +6,12 @@ Designed to be triggered by Task Scheduler / cron. Two modes:
 
   python run_analysis.py            # PREPARE mode (default, safe)
       Scans Polymarket and writes data/briefing_latest.md, then stops.
-      You open Claude Code afterwards and reason over the briefing.
+      You open the configured coding agent afterwards and reason over the briefing.
 
   python run_analysis.py --auto     # AUTONOMOUS mode
-      Same scan, then invokes the Claude Code CLI in headless print mode
-      (`claude -p ...`) so the full Supervisor→Specialist→record loop runs
-      unattended on your Claude Max subscription (no API key).
-      Requires the `claude` CLI on PATH and appropriate tool permissions.
+      Same scan, then invokes Claude Code or Codex non-interactively so the full
+      Supervisor→Specialist→record loop runs unattended. Select the CLI with
+      APEX_AGENT_PROVIDER (`claude` by default, or `codex`).
 
 Both modes flag any open predictions whose end_date has passed and point you at
 `python main_agent.py auto-resolve` to settle them from Polymarket. In --auto mode
@@ -78,7 +77,7 @@ def prepare() -> list:
     return short
 
 
-# The instruction handed to the headless Claude Code process in --auto mode.
+# The instruction handed to the configured headless coding agent in --auto mode.
 AUTO_PROMPT = """You are ApexMind running unattended. Do the following:
 1. Read system_prompts.md and data/briefing_latest.md.
 2. Adopt the SUPERVISOR role: set the macro frame, then triage the shortlist and
@@ -97,39 +96,65 @@ AUTO_PROMPT = """You are ApexMind running unattended. Do the following:
 Be calibrated and decisive. PASS is fine. Do not invent data."""
 
 
+def agent_command(prompt: str = AUTO_PROMPT) -> tuple[str, list[str]]:
+    """Return the configured agent label and non-interactive CLI command."""
+    if config.AGENT_PROVIDER == "claude":
+        return "Claude Code", [config.CLAUDE_CLI, "-p", prompt]
+    if config.AGENT_PROVIDER == "codex":
+        return "Codex", [
+            config.CODEX_CLI,
+            "--ask-for-approval", "never",
+            "--search",
+            "exec",
+            "--sandbox", "workspace-write",
+            prompt,
+        ]
+    raise ValueError(
+        f"Unsupported APEX_AGENT_PROVIDER={config.AGENT_PROVIDER!r}; "
+        "expected 'claude' or 'codex'."
+    )
+
+
 def autonomous() -> int:
     short = prepare()
-    print("\n  --auto: invoking Claude Code headless (claude -p)…")
-    cmd = [config.CLAUDE_CLI, "-p", AUTO_PROMPT]
+    try:
+        label, cmd = agent_command()
+    except ValueError as exc:
+        sys.exit(f"  {exc}")
+    print(f"\n  --auto: invoking {label} headlessly…")
     try:
         result = subprocess.run(cmd, cwd=str(config.ROOT), text=True,
                                 capture_output=True, timeout=1800)
     except FileNotFoundError:
-        sys.exit(f"  Claude CLI not found ('{config.CLAUDE_CLI}'). "
-                 "Set APEX_CLAUDE_CLI or run without --auto.")
+        cli_var = "APEX_CODEX_CLI" if config.AGENT_PROVIDER == "codex" \
+            else "APEX_CLAUDE_CLI"
+        sys.exit(f"  {label} CLI not found ('{cmd[0]}'). "
+                 f"Set {cli_var} or run without --auto.")
     except subprocess.TimeoutExpired:
-        sys.exit("  Claude Code run timed out.")
+        sys.exit(f"  {label} run timed out.")
 
     # Persist the transcript for the audit trail.
     out_file = config.LOGS_DIR / f"auto-run-{datetime.now(timezone.utc):%Y%m%d-%H%M%S}.log"
     out_file.write_text((result.stdout or "") + "\n--- STDERR ---\n" +
                         (result.stderr or ""), encoding="utf-8")
-    logger.log_event("auto_run", {"returncode": result.returncode,
+    logger.log_event("auto_run", {"provider": config.AGENT_PROVIDER,
+                                  "returncode": result.returncode,
                                   "log": str(out_file)})
-    print(f"  Claude Code exited {result.returncode}; transcript -> {out_file}")
+    print(f"  {label} exited {result.returncode}; transcript -> {out_file}")
     return len(short)
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="ApexMind scheduled analysis run.")
     ap.add_argument("--auto", action="store_true",
-                    help="after scanning, drive Claude Code headlessly to analyse")
+                    help="after scanning, drive the configured agent headlessly")
     args = ap.parse_args()
     if args.auto:
         autonomous()
     else:
         prepare()
-        print("\nDone (PREPARE mode). Open Claude Code and reason over the briefing,")
+        print(f"\nDone (PREPARE mode). Open {config.agent_label()} and reason over "
+              "the briefing,")
         print("or re-run with --auto for unattended analysis.")
 
 

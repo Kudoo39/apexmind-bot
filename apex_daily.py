@@ -12,10 +12,10 @@ Run once a day by Windows Task Scheduler (via apex_daily.cmd):
                     short Decision-Memo summary of them. No-op if Telegram is unset.
   4. stamp        : write data/LAST_PREPARE.txt as a glanceable "ready" marker.
 
-The probability reasoning stays human-in-the-loop: you open Claude Code and run the
-SUPERVISOR -> Specialist loop over the fresh briefing. This wrapper never records
-predictions or sends decision memos of its own — the "brain" is your in-session
-reasoning on the Claude Max subscription, not a headless model.
+The probability reasoning stays human-in-the-loop: you open the configured coding
+agent and run the SUPERVISOR -> Specialist loop over the fresh briefing. This wrapper
+never records predictions or sends decision memos of its own — the "brain" is your
+in-session reasoning, not a headless model.
 """
 
 from __future__ import annotations
@@ -41,6 +41,19 @@ for _stream in (sys.stdout, sys.stderr):
 _POLITICS = "Politics"
 _ECONOMY = "Economy"
 _STATE = config.DATA_DIR / ".apex_daily_state.json"
+
+
+def _cycle_instruction(html: bool = False) -> str:
+    if config.AGENT_PROVIDER == "codex":
+        if html:
+            return ("Open Codex and ask it to run the ApexMind cycle over "
+                    "<code>data/briefing_latest.md</code>.")
+        return ("Open Codex and ask it to run the ApexMind cycle over "
+                "data/briefing_latest.md.")
+    if html:
+        return ("Open Claude Code and run <code>/apexmind</code> over the fresh "
+                "briefing.")
+    return "Open Claude Code and run /apexmind over data/briefing_latest.md."
 
 
 def _auto_resolve() -> None:
@@ -83,12 +96,14 @@ def _notify_briefing(short: list) -> None:
     eco = sum(1 for m in short if _cat(m) == _ECONOMY)
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     msg = (
-        "📡 <b>ApexMind Daily Briefing ready</b>\n"
-        f"🗓 {ts}\n"
-        f"🎯 <b>{pol}</b> Politics/Geopolitics market(s) shortlisted "
-        f"(of {len(short)} total; {eco} macro/economy).\n"
-        "Open Claude Code and run <code>/apexmind</code> over the fresh briefing.\n"
-        f"📁 {config.BRIEFING_FILE}"
+        "📡 <b>ApexMind · Briefing Ready</b>\n"
+        f"🕒 {ts}\n\n"
+        f"✅ Scan complete · <b>{len(short)} markets</b> shortlisted\n"
+        f"🎯 Focus · {pol} politics/geopolitics · {eco} macro/economy\n\n"
+        "👉 <b>NEXT STEP</b>\n"
+        f"{_cycle_instruction(html=True)}\n\n"
+        "⚠️ Prepare only · No forecast or trade was made automatically.\n"
+        f"📁 <code>{config.BRIEFING_FILE}</code>"
     )
     if not notification.is_configured():
         print("  Telegram not configured — skipping pings "
@@ -129,7 +144,7 @@ def main() -> None:
         f"READY {datetime.now(timezone.utc):%Y-%m-%d %H:%M UTC} — "
         f"{len(short)} markets shortlisted "
         f"({sum(1 for m in short if _cat(m) == _POLITICS)} Politics/Geopolitics). "
-        "Open Claude Code and run /apexmind over data/briefing_latest.md.\n",
+        f"{_cycle_instruction()}\n",
         encoding="utf-8")
     print(f"  stamped {stamp}")
 
