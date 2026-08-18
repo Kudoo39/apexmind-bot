@@ -15,7 +15,7 @@ from __future__ import annotations
 from typing import Any
 
 import config
-from tools import memory_store, polymarket, taxonomy
+from tools import memory_store, polymarket, taxonomy, trade_store
 
 
 def _factor(market: dict[str, Any]) -> str:
@@ -32,9 +32,28 @@ def exposure_report() -> dict[str, Any]:
     # stray duplicate can never double-count conviction even if one slipped through.
     # Shared definition with scoring/calibration via memory_store.superseded_ids().
     _superseded = memory_store.superseded_ids()
-    positions = [p for p in memory_store.open_predictions()
-                 if p.get("decision") == "POSITION"
-                 and p.get("pred_id") not in _superseded]
+    all_preds = memory_store.load_predictions()
+    holdings = trade_store.holding_trades()
+    actual_trade_ids: list[str] = []
+    if holdings:
+        by_pred = {str(p.get("pred_id")): p for p in all_preds}
+        by_market = {str(p.get("market_id")): p for p in all_preds}
+        positions = []
+        for trade in holdings:
+            p = (by_pred.get(str(trade.get("pred_id")))
+                 or by_market.get(str(trade.get("market_id"))))
+            p = dict(p or {})
+            p.setdefault("question", trade.get("question", ""))
+            p.setdefault("market_id", trade.get("market_id"))
+            p["actual_trade_id"] = trade.get("trade_id")
+            positions.append(p)
+            actual_trade_ids.append(trade.get("trade_id"))
+        source = "actual trades"
+    else:
+        positions = [p for p in memory_store.open_predictions()
+                     if p.get("decision") == "POSITION"
+                     and p.get("pred_id") not in _superseded]
+        source = "model positions"
 
     by_cat: dict[str, dict[str, Any]] = {}
     by_factor: dict[str, dict[str, Any]] = {}
@@ -64,7 +83,8 @@ def exposure_report() -> dict[str, Any]:
                          "treat as a single bet, not diversification.")
 
     return {"n_positions": len(positions), "total_conviction": total_conv,
-            "by_category": by_cat, "by_factor": by_factor, "flags": flags}
+            "by_category": by_cat, "by_factor": by_factor, "flags": flags,
+            "source": source, "actual_trade_ids": actual_trade_ids}
 
 
 def _fmt_groups(groups: dict[str, dict[str, Any]]) -> list[str]:
@@ -93,7 +113,8 @@ def format_exposure_md(r: dict[str, Any]) -> str:
 def summary_lines(r: dict[str, Any]) -> list[str]:
     if not r["n_positions"]:
         return ["Portfolio: flat (no open positions)."]
-    out = [f"Portfolio: {r['n_positions']} positions · {r['total_conviction']} conviction"]
+    out = [f"Portfolio ({r.get('source', 'model positions')}): {r['n_positions']} positions "
+           f"· {r['total_conviction']} conviction"]
     out += _fmt_groups(r["by_factor"])
     for f in r["flags"]:
         out.append(f"  ⚠ {f}")

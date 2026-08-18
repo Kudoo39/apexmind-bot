@@ -131,6 +131,11 @@ def _normalise(raw: dict[str, Any]) -> dict[str, Any] | None:
     }
 
 
+def normalise_market(raw: dict[str, Any]) -> dict[str, Any] | None:
+    """Public single-market normalizer for consumers such as the trade ledger."""
+    return _normalise(raw)
+
+
 # --------------------------------------------------------------------------- #
 # Category detection — the shared keyword taxonomy (tools/taxonomy.py) on the
 # question text, with the raw Gamma `category` as fallback.

@@ -38,6 +38,7 @@ def isolated_book(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "DATA_DIR", data)
     monkeypatch.setattr(config, "RESEARCH_CACHE_DIR", cache)
     monkeypatch.setattr(config, "PREDICTIONS_FILE", mem / "predictions.json")
+    monkeypatch.setattr(config, "TRADES_FILE", mem / "trades.json")
     monkeypatch.setattr(config, "CALIBRATION_FILE", mem / "calibration.json")
     monkeypatch.setattr(config, "BELIEFS_FILE", mem / "beliefs.json")
     monkeypatch.setattr(config, "LESSONS_FILE", mem / "lessons.md")

@@ -1,8 +1,9 @@
 # 🧠 ApexMind
 
 A **deep-reasoning, self-improving prediction-market agent** for
-[Polymarket](https://polymarket.com), built to run on **Claude Code** with a
-**Claude Max** subscription — **no Anthropic API key required**.
+[Polymarket](https://polymarket.com), built to run on **Claude Code or Codex**
+without changing its forecasting workflow. A signed-in CLI is enough — no model
+API key is required for subscription-backed local use.
 
 ## The idea in one picture
 
@@ -13,7 +14,7 @@ A **deep-reasoning, self-improving prediction-market agent** for
             │                  └────────► tools/briefing.py ──► data/briefing.md   │
             └───────────────────────────────┬────────────────────────────────────┘
                                             │ (hand-off)
-            ┌───────────────────────────────▼──────── CLAUDE CODE = "brain" ──────┐
+            ┌───────────────────────────────▼──────── CODING AGENT = "brain" ─────┐
             │  system_prompts.md  →  SUPERVISOR → SPECIALIST → (later) REFLECTION  │
             │  deep reasoning, calibrated probabilities, self-critique            │
             └───────────────────────────────┬────────────────────────────────────┘
@@ -24,9 +25,9 @@ A **deep-reasoning, self-improving prediction-market agent** for
 ```
 
 The Python layer is **deterministic plumbing**. All probability estimation,
-judgement, and learning happen in **Claude Code's reasoning**, steered by the
-three role prompts in `system_prompts.md`. That's what makes it work on Claude
-Max with no API spend.
+judgement, and learning happen in the **configured agent's reasoning**, steered by the
+three role prompts in `system_prompts.md`. That keeps model reasoning on the signed-in
+agent subscription instead of adding an API client to this project.
 
 ## What "self-improving" means here
 1. ApexMind records **every** analysed market (model probability + reasoning).
@@ -37,6 +38,7 @@ Max with no API spend.
 ## Project structure
 ```
 apexmind-bot/
+├── AGENTS.md              # Codex entry point; delegates to the same operating manual
 ├── CLAUDE.md              # operating manual Claude Code auto-loads each session
 ├── system_prompts.md      # Supervisor / Specialist / Reflection role prompts
 ├── config.py              # tunables (filters, edge thresholds, API URLs)
@@ -92,9 +94,23 @@ Get the Decision Memo pushed to your phone after every run.
    You should receive a "✅ ApexMind Telegram test" message. If secrets are missing,
    ApexMind just skips sending — it never crashes.
 
-## How to run it with Claude Code
+## How to run it with Codex or Claude Code
 
-### Easiest: the slash command
+The analysis logic is identical for both agents. Select the headless provider in
+`.env` when needed:
+
+```ini
+APEX_AGENT_PROVIDER=codex   # or claude (default)
+```
+
+### Codex
+
+Open the repository in Codex and ask: **"Run the full ApexMind cycle over the latest
+briefing."** Codex reads `AGENTS.md`, which delegates to the same operating manual and
+cycle definition used by Claude Code. For unattended runs, sign in with
+`codex.cmd login`, select `codex` above, then run `python run_analysis.py --auto`.
+
+### Claude Code slash command
 Open this folder in Claude Code and type:
 ```
 /apexmind
@@ -105,7 +121,7 @@ producing a decision memo. Add a focus, e.g. `/apexmind focus on macro/rates mar
 ### Manual, step by step
 1. **Scan** (terminal): `python main_agent.py scan`
    (pulls markets **+ 7-day price history** and builds the briefing)
-2. **Reason** (in Claude Code): *"Read system_prompts.md and data/briefing_latest.md,
+2. **Reason** (in the configured agent): *"Read system_prompts.md and data/briefing_latest.md,
    then run the Supervisor and Specialist roles and record each call."*
 3. **Notify**: write a small `notify.json` (executive_summary, macro_frame,
    bet_recommendation — see `docs/notify.example.json`) and run
@@ -114,15 +130,16 @@ producing a decision memo. Add a focus, e.g. `/apexmind focus on macro/rates mar
 4. **Review**: `python main_agent.py status`
 5. **Settle**: `python main_agent.py auto-resolve` — checks Polymarket and resolves
    any of your predictions that have settled (no manual outcome lookup needed).
-6. **Learn**: the same command builds `data/reflection_packet.json`; then in Claude
-   Code: *"Run the Reflection role over data/reflection_packet.json and update memory."*
+6. **Learn**: the same command builds `data/reflection_packet.json`; then ask the
+   configured agent: *"Run the Reflection role over data/reflection_packet.json and
+   update memory."*
 
 ### Scheduled / unattended (the daily flywheel)
 - **Prepare + notify (recommended).** `apex_daily.py` runs the full daily prep —
   `auto-resolve` (settle any resolved markets) → scan/briefing → and, **when Telegram is
   configured**, a `📡 Briefing ready — N Politics/Geopolitics markets` ping (plus a short
   Decision-Memo summary whenever new POSITIONs were recorded since the last run). It never
-  reasons; you open Claude Code and run `/apexmind` over the fresh briefing. Register it
+  reasons; you open the configured agent and run the ApexMind cycle over the fresh briefing. Register it
   with Windows Task Scheduler (daily, off-peak minute) via the bundled wrapper:
   ```powershell
   schtasks /Create /TN "ApexMind Daily Prepare" /TR "C:\path\to\apexmind-bot\apex_daily.cmd" /SC DAILY /ST 08:57 /F
@@ -130,8 +147,8 @@ producing a decision memo. Add a focus, e.g. `/apexmind focus on macro/rates mar
   (Runs only while you're logged on — no stored credentials. Glanceable status:
   `data/LAST_PREPARE.txt`; log: `logs/daily_cron.log`.)
 - **Autonomous mode** (full headless analysis): `python run_analysis.py --auto` scans
-  *and* drives Claude Code headlessly (`claude -p ...`) to do the whole cycle on your Max
-  subscription. Requires the `claude` CLI on PATH.
+  and drives the selected Claude Code or Codex CLI through the same cycle. Set
+  `APEX_AGENT_PROVIDER`; the selected CLI must already be signed in.
 
 ## CLI reference
 | Command | Purpose |
@@ -145,6 +162,8 @@ producing a decision memo. Add a focus, e.g. `/apexmind focus on macro/rates mar
 | `python main_agent.py backtest --days 90 [--strategy revert] [--by-category]` | replay resolved markets; bootstrap calibration & test edge |
 | `python main_agent.py status` | track record, Brier, calibration, open positions |
 | `python main_agent.py portfolio` | open-position exposure by category/factor + correlation flags |
+| `python main_agent.py trade-sync --file trades.json --replace` | import actual holdings/closed trades separately from forecasts |
+| `python main_agent.py trades --refresh` | refresh held prices and show HOLD/TAKE_PROFIT/EXIT actions |
 | `python main_agent.py resolve <id> <0\|1>` | mark a market resolved manually (1=YES, 0=NO) |
 | `python main_agent.py reflect` | build the reflection packet |
 | `python main_agent.py lesson "<text>"` | append a lesson |
